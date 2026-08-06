@@ -12,7 +12,9 @@ function base_path(string $path = ''): string
 
 function public_path(string $path = ''): string
 {
-    return base_path('public' . ($path !== '' ? '/' . ltrim($path, '/') : ''));
+    $publicBase = rtrim((string) env('PUBLIC_PATH', base_path('public')), '/');
+
+    return $publicBase . ($path !== '' ? '/' . ltrim($path, '/') : '');
 }
 
 function env(string $key, mixed $default = null): mixed
@@ -44,7 +46,17 @@ function url(string $path = ''): string
 
 function asset(string $path): string
 {
-    return '/' . ltrim($path, '/');
+    if (preg_match('#^https?://#i', $path) === 1) {
+        return $path;
+    }
+
+    $path = ltrim($path, '/');
+
+    if (str_starts_with($path, 'prompts/')) {
+        $path = 'storage/' . $path;
+    }
+
+    return '/' . $path;
 }
 
 function e(mixed $value): string

@@ -18,7 +18,7 @@
             <span><?= (int) $prompt['copy_count'] ?> copied</span>
         </div>
         <div>
-            <p class="eyebrow">Completed prompt</p>
+            <p class="eyebrow">Prompt file</p>
             <h1><?= e($prompt['title']) ?></h1>
         </div>
         <div class="prompt-text"><?= nl2br(e((string) $prompt['prompt'])) ?></div>

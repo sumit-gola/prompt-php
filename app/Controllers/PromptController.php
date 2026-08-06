@@ -24,13 +24,21 @@ final class PromptController extends Controller
         $results = Prompt::publicSearch($filters, $page);
         $hasFilter = $filters['q'] !== '' || $filters['category'] !== '';
         $noindex = $hasFilter && (int) $results['total'] === 0;
+        $description = $hasFilter
+            ? 'Filtered AI image prompt results from the public Prompt Library.'
+            : 'Search completed AI image prompts by category, subject, style, popularity, and copy count.';
 
         return $this->view('prompts/index', [
             'title' => 'Prompt library',
             'metaTitle' => 'Search the AI Prompt Library',
-            'metaDescription' => 'Search completed AI image prompts by category, subject, style, popularity, and copy count.',
+            'metaDescription' => $description,
+            'metaKeywords' => 'AI image prompts, prompt search, prompt categories, copy AI prompts, generative image prompts',
             'canonical' => app_url('/prompts'),
             'noindex' => $noindex,
+            'structuredData' => [
+                SeoService::collectionSchema('AI Prompt Library', $description, (int) $results['total']),
+                SeoService::websiteSchema(),
+            ],
             'showAds' => SeoService::canShowAds($noindex, (int) $results['total']),
             'filters' => $filters,
             'results' => $results,
@@ -53,8 +61,24 @@ final class PromptController extends Controller
             'title' => $prompt['title'],
             'metaTitle' => $prompt['title'] . ' prompt',
             'metaDescription' => $description,
+            'metaKeywords' => implode(', ', array_filter([
+                $prompt['title'],
+                $prompt['category'] . ' AI prompt',
+                'AI image prompt',
+                'copy prompt',
+                'prompt library',
+            ])),
             'canonical' => SeoService::promptUrl($prompt),
-            'ogImage' => $prompt['thumbnail_path'] ? app_url('/' . $prompt['thumbnail_path']) : null,
+            'ogType' => 'article',
+            'ogImage' => SeoService::assetUrl($prompt['thumbnail_path'] ?? null),
+            'structuredData' => [
+                SeoService::promptSchema($prompt),
+                SeoService::breadcrumbSchema([
+                    ['name' => 'Home', 'url' => app_url('/')],
+                    ['name' => 'Prompts', 'url' => app_url('/prompts')],
+                    ['name' => (string) $prompt['title'], 'url' => SeoService::promptUrl($prompt)],
+                ]),
+            ],
             'showAds' => SeoService::canShowAds(),
             'prompt' => $prompt,
             'related' => $related,
@@ -87,4 +111,3 @@ final class PromptController extends Controller
         ]);
     }
 }
-

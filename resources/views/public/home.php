@@ -1,7 +1,7 @@
 <section class="library-header">
     <div class="library-title">
-        <p class="eyebrow">Prompt command center</p>
-        <h1>Browse <?= (int) ($stats['completed'] ?? count($prompts)) ?> AI prompts.</h1>
+        <p class="eyebrow">Prompt index</p>
+        <h1>Search <?= (int) ($stats['completed'] ?? count($prompts)) ?> AI prompts.</h1>
         <div class="hero-stats" aria-label="Library summary">
             <span><strong><?= (int) ($stats['completed'] ?? 0) ?></strong> completed</span>
             <span><strong><?= count($categories) ?></strong> categories</span>
@@ -14,7 +14,7 @@
         </div>
     </div>
     <form class="search-panel" action="<?= url('/prompts') ?>" method="get">
-        <label for="home-q">Search the library</label>
+        <label for="home-q">Search prompts</label>
         <div class="search-row">
             <input id="home-q" name="q" type="search" placeholder="Try product shot, portrait lighting, fashion">
             <button class="button" type="submit">Search</button>
@@ -25,7 +25,7 @@
 <section class="content-band latest-band">
     <div class="section-heading">
         <div>
-            <p class="eyebrow">Latest completed</p>
+            <p class="eyebrow">Latest published</p>
             <h2>Newest in the library</h2>
         </div>
         <a class="button button-ghost" href="<?= url('/prompts') ?>">View all</a>

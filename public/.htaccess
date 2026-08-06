@@ -1,6 +1,9 @@
 Options -Indexes
+
+AddType image/avif .avif
+AddType image/webp .webp
+
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
-

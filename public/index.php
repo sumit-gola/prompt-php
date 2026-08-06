@@ -13,7 +13,14 @@ if (PHP_SAPI === 'cli-server' && $uri !== '/' && $staticPath && str_starts_with(
     return false;
 }
 
-$router = require dirname(__DIR__) . '/bootstrap/app.php';
+$appBootstrap = dirname(__DIR__) . '/bootstrap/app.php';
+$cPanelBootstrap = dirname(__DIR__) . '/prompt-cms/bootstrap/app.php';
+
+if (! is_file($appBootstrap) && is_file($cPanelBootstrap)) {
+    $appBootstrap = $cPanelBootstrap;
+}
+
+$router = require $appBootstrap;
 require base_path('routes/web.php');
 
 header_remove('X-Powered-By');

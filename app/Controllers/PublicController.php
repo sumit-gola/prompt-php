@@ -18,8 +18,15 @@ final class PublicController extends Controller
 
         return $this->view('public/home', [
             'title' => 'Prompt Library',
+            'metaTitle' => 'Prompt Library - Search and Copy AI Image Prompts',
             'metaDescription' => 'Browse, search, and copy completed AI image prompts curated by editors.',
+            'metaKeywords' => 'AI image prompts, prompt library, copy prompts, generative AI prompts, image generation prompts',
             'canonical' => app_url('/'),
+            'structuredData' => [
+                SeoService::websiteSchema(),
+                SeoService::organizationSchema(),
+                SeoService::collectionSchema('Latest AI image prompts', 'Recently published completed AI image prompts ready to open and copy.', count($prompts)),
+            ],
             'prompts' => $prompts,
             'categories' => Prompt::CATEGORIES,
             'stats' => Prompt::stats(),
@@ -90,11 +97,18 @@ final class PublicController extends Controller
 
     private function page(string $title, string $view, string $metaTitle, string $description): Response
     {
+        $canonical = app_url('/' . trim(strtolower(str_replace(' ', '-', $title)), '-'));
+
         return $this->view($view, [
             'title' => $title,
             'metaTitle' => $metaTitle,
             'metaDescription' => $description,
-            'canonical' => app_url('/' . trim(strtolower(str_replace(' ', '-', $title)), '-')),
+            'metaKeywords' => 'Prompt Library, AI prompt library, AI image prompts, prompt usage policy',
+            'canonical' => $canonical,
+            'structuredData' => [
+                SeoService::webPageSchema($metaTitle, $description, $canonical),
+                SeoService::organizationSchema(),
+            ],
             'showAds' => SeoService::canShowAds(),
         ]);
     }

@@ -1,7 +1,7 @@
 <section class="library-header compact">
     <div class="library-title">
         <p class="eyebrow">Prompt library</p>
-        <h1>Completed prompts</h1>
+        <h1>Search completed prompts</h1>
         <p class="muted"><?= (int) $results['total'] ?> result<?= (int) $results['total'] === 1 ? '' : 's' ?></p>
     </div>
     <form class="filter-panel" action="<?= url('/prompts') ?>" method="get">

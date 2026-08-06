@@ -1,7 +1,7 @@
 .env
+/deploy/
 /public/storage/*
 !/public/storage/.gitkeep
 !/public/storage/.htaccess
 *.log
 .DS_Store
-
