@@ -206,6 +206,18 @@ code {
     box-shadow: var(--glow);
 }
 
+.header-brand-logo {
+    min-width: 0;
+}
+
+.header-brand-logo img {
+    width: clamp(158px, 17vw, 210px);
+    height: auto;
+    filter:
+        drop-shadow(0 1px 1px rgba(15, 23, 42, .78))
+        drop-shadow(0 8px 18px rgba(8, 145, 178, .18));
+}
+
 .header-search {
     position: relative;
     display: grid;

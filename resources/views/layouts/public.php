@@ -40,6 +40,8 @@ $structuredData = $structuredData ?? [];
     <meta itemprop="description" content="<?= e($description) ?>">
     <meta itemprop="image" content="<?= e($shareImage) ?>">
     <link rel="canonical" href="<?= e($canonicalUrl) ?>">
+    <link rel="icon" href="<?= asset('favicon.png') ?>" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="<?= asset('apple-touch-icon.png') ?>" sizes="180x180">
     <meta property="og:site_name" content="<?= e($siteName) ?>">
     <meta property="og:locale" content="en_US">
     <meta property="og:title" content="<?= e($pageTitle) ?>">
@@ -63,7 +65,7 @@ $structuredData = $structuredData ?? [];
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="#f6f9fc">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806light">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806logo2">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
@@ -74,9 +76,13 @@ $structuredData = $structuredData ?? [];
 <body class="public-shell">
     <header class="site-header">
         <div class="site-header-inner">
-            <a class="brand" href="<?= url('/') ?>">
-                <span class="brand-mark">PL</span>
-                <span>Prompt Library</span>
+            <a class="brand header-brand-logo" href="<?= url('/') ?>" aria-label="<?= e($siteName) ?> home">
+                <img
+                    src="<?= asset('assets/img/my-prompt-art-logo.webp') ?>"
+                    alt="MyPromptArt — Creative AI Prompts &amp; Ideas"
+                    width="1200"
+                    height="408"
+                >
             </a>
             <form class="header-search" action="<?= url('/prompts') ?>" method="get" role="search">
                 <label class="sr-only" for="header-q">Search prompts</label>

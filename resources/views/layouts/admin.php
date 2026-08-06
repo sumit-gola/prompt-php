@@ -9,7 +9,9 @@ $user = \App\Core\Auth::user();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title><?= e($pageTitle) ?> - Prompt Library Admin</title>
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806light">
+    <link rel="icon" href="<?= asset('favicon.png') ?>" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="<?= asset('apple-touch-icon.png') ?>" sizes="180x180">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806logo2">
 </head>
 <body class="admin-shell">
     <aside class="admin-sidebar">
