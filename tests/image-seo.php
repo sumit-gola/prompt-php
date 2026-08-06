@@ -120,6 +120,8 @@ $response = $method->invoke($controller, [[
 ]]);
 $assert(str_contains($response->body(), 'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"'), 'Sitemaps should declare the Google image namespace.');
 $assert(str_contains($response->body(), '<image:loc>https://mypromptart.com/' . $expectedStem . '.webp?v='), 'Sitemaps should include the versioned descriptive canonical image URL.');
+$publicControllerSource = file_get_contents(base_path('app/Controllers/PublicController.php')) ?: '';
+$assert(str_contains($publicControllerSource, 'PromptImageService::metadata($prompt, false)'), 'Sitemap rendering should not generate image derivatives synchronously.');
 
 $removeTree = static function (string $path) use (&$removeTree): void {
     if (is_dir($path)) {

@@ -226,7 +226,7 @@ final class PublicController extends Controller
 
         foreach (Prompt::sitemapCompleted($limit, $offset) as $prompt) {
             $timestamp = strtotime((string) ($prompt['updated_at'] ?? $prompt['generated_at'] ?? ''));
-            $image = PromptImageService::metadata($prompt, true);
+            $image = PromptImageService::metadata($prompt, false);
             $entry = [
                 'loc' => SeoService::promptUrl($prompt),
                 'lastmod' => $timestamp ? date('Y-m-d', $timestamp) : null,
