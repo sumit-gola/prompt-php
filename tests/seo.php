@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Core\Request;
 use App\Core\View;
+use App\Models\Prompt;
 use App\Services\SeoService;
 
 $router = require dirname(__DIR__) . '/bootstrap/app.php';
@@ -33,9 +34,75 @@ $assert(
     'Paginated canonical should preserve the page number.'
 );
 $assert(
-    SeoService::categoryUrl('portrait') === 'https://mypromptart.com/prompts/category/portrait',
+    SeoService::categoryUrl('portrait') === 'https://mypromptart.com/ai-prompts/portrait',
     'Category canonical should use the clean category route.'
 );
+$assert(
+    SeoService::categoryMetaTitle('portrait') === 'Portrait AI Prompts for Photo Editing',
+    'Portrait landing page should have a specific SEO title.'
+);
+$assert(
+    SeoService::categoryHeading('portrait') === 'Portrait AI Prompts',
+    'Portrait landing page should have a specific H1.'
+);
+$assert(
+    SeoService::categoryMetaDescription('portrait', 249)
+        === 'Explore 249 curated portrait AI prompts for cinematic photos, studio headshots, fashion editorials and identity-preserving photo edits. Preview and copy each prompt free.',
+    'Portrait meta description should include its current result count and specific use cases.'
+);
+$assert(
+    str_contains(SeoService::categoryIntro('portrait'), 'realistic headshots'),
+    'Portrait landing page should include substantive introductory copy.'
+);
+
+$websiteSchema = SeoService::websiteSchema();
+$assert(($websiteSchema['@type'] ?? null) === 'WebSite', 'Homepage site schema should use WebSite.');
+$assert(($websiteSchema['name'] ?? null) === 'MyPromptArt', 'WebSite schema should use the canonical brand name.');
+$assert(($websiteSchema['alternateName'] ?? null) === 'MPA', 'WebSite schema should expose the MPA alternate name.');
+$assert(($websiteSchema['url'] ?? null) === 'https://mypromptart.com/', 'WebSite schema should use the canonical homepage URL.');
+$assert(
+    ($websiteSchema['publisher']['@id'] ?? null) === 'https://mypromptart.com/#organization',
+    'WebSite schema should identify the site publisher.'
+);
+
+$organizationSchema = SeoService::organizationSchema();
+$assert(($organizationSchema['name'] ?? null) === 'MyPromptArt', 'Organization schema should use the canonical brand name.');
+$assert(($organizationSchema['alternateName'] ?? null) === 'MPA', 'Organization schema should use the same alternate name.');
+$assert(
+    ($organizationSchema['logo']['url'] ?? null) === 'https://mypromptart.com/assets/img/my-prompt-art-logo.webp',
+    'Organization schema should expose the canonical crawlable logo URL.'
+);
+$assert(
+    ($organizationSchema['logo']['width'] ?? null) === 1200
+        && ($organizationSchema['logo']['height'] ?? null) === 408,
+    'Organization logo schema should use the real image dimensions.'
+);
+$assert(
+    SeoService::defaultShareImageUrl() === 'https://mypromptart.com/assets/img/share-card-public.png?v=20260807brand1',
+    'The branded Open Graph image should use a cache-busting URL.'
+);
+$assert(
+    Prompt::slugify('Golden Hour Portrait in Wheat Field') === 'golden-hour-portrait-in-wheat-field',
+    'Prompt titles should produce clean lowercase URL slugs.'
+);
+$assert(
+    Prompt::publicIdentifier([
+        'id' => 1072,
+        'source_slug' => 'golden-hour-portrait-in-wheat-field',
+    ]) === 'golden-hour-portrait-in-wheat-field',
+    'Public prompt identifiers should prefer the stored slug over the legacy ID.'
+);
+
+$aboutHtml = View::render('public/about');
+$assert(str_contains($aboutHtml, 'What MyPromptArt provides'), 'About page should explain the product.');
+$assert(str_contains($aboutHtml, 'How prompts are selected'), 'About page should explain editorial selection.');
+$assert(str_contains($aboutHtml, 'What “tested with” means'), 'About page should distinguish curation from testing.');
+$assert(str_contains($aboutHtml, 'How source material is handled'), 'About page should explain source and rights handling.');
+$assert(str_contains($aboutHtml, 'How often the library changes'), 'About page should explain its publishing cadence.');
+
+$contactHtml = View::render('public/contact', ['contactEmail' => 'hello@mypromptart.com']);
+$assert(str_contains($contactHtml, 'mailto:hello@mypromptart.com'), 'Contact page should publish a working email link.');
+$assert(str_contains($contactHtml, '1&ndash;2 business days'), 'Contact page should publish the expected response time.');
 
 $request = new Request('GET', '/prompts', [], [], [], [
     'HTTP_HOST' => 'www.mypromptart.com',
@@ -81,6 +148,7 @@ $prompt = [
     'title' => 'Studio portrait',
     'prompt' => 'A carefully lit studio portrait.',
     'category' => 'portrait',
+    'tested_models' => 'Gemini / ChatGPT Image, gemini; Midjourney',
     'thumbnail_path' => null,
     'generated_at' => '2026-08-01 10:00:00',
     'created_at' => '2026-08-01 09:00:00',
@@ -95,6 +163,10 @@ $collection = SeoService::collectionSchema(
 );
 $assert(($collection['mainEntity']['numberOfItems'] ?? null) === 1, 'Collection schema should expose its result count.');
 $assert(
+    ($collection['publisher']['@id'] ?? null) === 'https://mypromptart.com/#organization',
+    'Collection schema should identify its publisher.'
+);
+$assert(
     ($collection['mainEntity']['itemListElement'][0]['url'] ?? null) === 'https://mypromptart.com/prompts/studio-portrait',
     'Collection schema should list visible prompt URLs.'
 );
@@ -102,7 +174,29 @@ $assert(
 $promptSchema = SeoService::promptSchema($prompt);
 $assert(($promptSchema['@type'] ?? null) === 'CreativeWork', 'Prompt schema should use CreativeWork.');
 $assert(isset($promptSchema['datePublished'], $promptSchema['dateModified']), 'Prompt schema should include backed publication dates.');
+$assert(
+    ($promptSchema['publisher']['@id'] ?? null) === 'https://mypromptart.com/#organization',
+    'Prompt schema should identify MyPromptArt as publisher without claiming third-party authorship.'
+);
+$assert(($promptSchema['genre'] ?? null) === 'Portrait', 'Prompt schema should expose its category as genre.');
+$assert(
+    array_column($promptSchema['mentions'] ?? [], 'name') === ['Gemini', 'ChatGPT Image', 'Midjourney'],
+    'Prompt schema should expose only explicitly recorded tested AI models and deduplicate their names.'
+);
+$assert(
+    in_array('ChatGPT Image', $promptSchema['keywords'] ?? [], true),
+    'Prompt schema keywords should include explicitly recorded tested AI models.'
+);
 $assert(! isset($promptSchema['aggregateRating']), 'Prompt schema must not invent ratings.');
+$untestedPromptSchema = SeoService::promptSchema(array_merge($prompt, [
+    'tested_models' => null,
+    'ai_model' => 'unverified-provider-model',
+]));
+$assert(
+    ! isset($untestedPromptSchema['mentions'])
+        && ! in_array('unverified-provider-model', $untestedPromptSchema['keywords'] ?? [], true),
+    'Prompt schema must not infer model testing from generation-provider metadata.'
+);
 
 $html = View::render('public/404', [
     'title' => 'Page not found',
@@ -120,6 +214,8 @@ $assert(str_contains($html, 'msvalidate.01'), 'Bing verification should be envir
 $assert(str_contains($html, 'rel="canonical" href="https://mypromptart.com/missing"'), 'Error page canonical should be escaped and absolute.');
 $assert(str_contains($html, 'assets/img/my-prompt-art-logo.webp'), 'Public header should render the MyPromptArt logo asset.');
 $assert(! str_contains($html, '<span class="brand-mark">PL</span>'), 'Public header should not render the legacy PL badge.');
+$assert(str_contains($html, '<strong>MyPromptArt</strong>'), 'Public footer should use the canonical MyPromptArt brand.');
+$assert(str_contains($html, 'property="og:site_name" content="MyPromptArt"'), 'Open Graph site name should use MyPromptArt.');
 $assert(str_contains($html, 'rel="icon"') && str_contains($html, '/favicon.png"'), 'Public pages should render the PNG favicon.');
 $assert(str_contains($html, 'rel="apple-touch-icon"') && str_contains($html, '/apple-touch-icon.png"'), 'Public pages should render the Apple touch icon.');
 

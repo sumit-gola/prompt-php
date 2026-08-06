@@ -31,11 +31,11 @@ final class PublicController extends Controller
         $categoryCounts = Prompt::publicCategoryCounts();
         $categories = array_keys(array_filter($categoryCounts, static fn (int $count): bool => $count > 0));
         $publicCompletedCount = array_sum($categoryCounts);
-        $description = 'Browse curated AI image prompts for portraits, products, fashion, lifestyle, and art. Search, open, and copy completed prompts.';
+        $description = 'Discover 1,000+ curated AI image and photo-editing prompts for portraits, fashion, products, art and lifestyle. Preview, copy and create better AI images.';
 
         return $this->view('public/home', [
             'title' => 'MyPromptArt',
-            'metaTitle' => 'MyPromptArt | AI Image Prompt Library',
+            'metaTitle' => 'AI Image & Photo Editing Prompts | MyPromptArt',
             'metaDescription' => $description,
             'canonical' => app_url('/'),
             'ogImageAlt' => SeoService::defaultShareImageAlt(),
@@ -78,7 +78,7 @@ final class PublicController extends Controller
             '/contact',
             'Contact MyPromptArt | Editorial and Support',
             'Contact MyPromptArt about editorial questions, prompt sources, licensing, privacy, or account support.',
-            ['contactEmail' => trim((string) env('CONTACT_EMAIL', ''))]
+            ['contactEmail' => trim((string) env('CONTACT_EMAIL', 'hello@mypromptart.com')) ?: 'hello@mypromptart.com']
         );
     }
 

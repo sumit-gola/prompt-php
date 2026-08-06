@@ -46,6 +46,12 @@
         <label>AI model
             <input name="ai_model" type="text" value="<?= e($prompt['ai_model']) ?>">
         </label>
+        <label>Tested with
+            <input name="tested_models" type="text" maxlength="500" value="<?= e($prompt['tested_models'] ?? '') ?>" placeholder="Gemini, ChatGPT Image, Midjourney">
+        </label>
+        <label>Last reviewed
+            <input name="reviewed_at" type="datetime-local" value="<?= ! empty($prompt['reviewed_at']) ? e(date('Y-m-d\TH:i', strtotime((string) $prompt['reviewed_at']))) : '' ?>">
+        </label>
         <label>Generated at
             <input name="generated_at" type="datetime-local" value="<?= $prompt['generated_at'] ? e(date('Y-m-d\TH:i', strtotime((string) $prompt['generated_at']))) : '' ?>">
         </label>
@@ -127,4 +133,3 @@
         <button class="button button-danger" type="submit">Delete prompt</button>
     </form>
 </section>
-

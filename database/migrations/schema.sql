@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS prompts (
     style_notes JSON NULL,
     ai_provider VARCHAR(100) NULL,
     ai_model VARCHAR(150) NULL,
+    tested_models VARCHAR(500) NULL,
+    reviewed_at DATETIME NULL,
     status VARCHAR(32) NOT NULL DEFAULT 'draft',
     copy_count INT UNSIGNED NOT NULL DEFAULT 0,
     error_message TEXT NULL,
@@ -71,4 +73,3 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     updated_at DATETIME NOT NULL,
     KEY rate_limits_expires_at_index (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-

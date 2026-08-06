@@ -1,4 +1,4 @@
-<?php $detailImage = $promptImage ?? \App\Services\PromptImageService::metadata($prompt, true); ?>
+<?php $detailImage = $promptImage ?? \App\Services\PromptImageService::metadata($prompt); ?>
 <article class="prompt-detail">
     <aside class="detail-media">
         <figure class="prompt-image-figure">
@@ -53,16 +53,45 @@
             <p class="eyebrow">Prompt file</p>
             <h1><?= e($prompt['title']) ?></h1>
         </div>
-        <?php if ($publishedAt !== null || $modifiedAt !== null): ?>
-            <div class="publication-meta">
-                <?php if ($publishedAt !== null): ?>
-                    <span>Published <time datetime="<?= e($publishedAt) ?>"><?= e(date('M j, Y', strtotime($publishedAt))) ?></time></span>
+        <section class="prompt-trust-ledger" aria-labelledby="editorial-record-heading">
+            <h2 id="editorial-record-heading">Editorial record</h2>
+            <dl>
+                <div>
+                    <dt>Curated by</dt>
+                    <dd>MyPromptArt</dd>
+                </div>
+                <div>
+                    <dt>Tested with</dt>
+                    <dd><?= $testedModels !== '' ? e($testedModels) : 'Not yet recorded' ?></dd>
+                </div>
+                <div>
+                    <dt>Published</dt>
+                    <dd>
+                        <?php if ($publishedAt !== null): ?>
+                            <time datetime="<?= e($publishedAt) ?>"><?= e(date('j F Y', strtotime($publishedAt))) ?></time>
+                        <?php else: ?>
+                            Not recorded
+                        <?php endif; ?>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Last reviewed</dt>
+                    <dd>
+                        <?php if ($reviewedAt !== null): ?>
+                            <time datetime="<?= e($reviewedAt) ?>"><?= e(date('j F Y', strtotime($reviewedAt))) ?></time>
+                        <?php else: ?>
+                            Not yet recorded
+                        <?php endif; ?>
+                    </dd>
+                </div>
+                <?php if ($sourceUrl !== null): ?>
+                    <div>
+                        <dt>Source record</dt>
+                        <dd><a href="<?= e($sourceUrl) ?>"><?= e($sourceLabel) ?></a></dd>
+                    </div>
                 <?php endif; ?>
-                <?php if ($modifiedAt !== null): ?>
-                    <span>Updated <time datetime="<?= e($modifiedAt) ?>"><?= e(date('M j, Y', strtotime($modifiedAt))) ?></time></span>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+            </dl>
+        </section>
         <div class="prompt-text"><?= nl2br(e((string) $prompt['prompt'])) ?></div>
         <button class="button copy-button" data-copy-url="<?= url('/prompts/' . $prompt['id'] . '/copy') ?>" data-csrf="<?= e(csrf_token()) ?>" type="button">Copy prompt</button>
 

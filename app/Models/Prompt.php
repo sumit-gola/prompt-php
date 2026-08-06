@@ -33,6 +33,8 @@ final class Prompt
         'style_notes',
         'ai_provider',
         'ai_model',
+        'tested_models',
+        'reviewed_at',
         'status',
         'copy_count',
         'error_message',
@@ -170,7 +172,11 @@ final class Prompt
         $stmt = Database::pdo()->prepare(
             "SELECT id, title, category, source_slug, thumbnail_path, reference_image_path, updated_at, generated_at
              FROM prompts
-             WHERE status = 'completed' AND prompt IS NOT NULL AND prompt <> ''
+             WHERE status = 'completed'
+               AND prompt IS NOT NULL
+               AND prompt <> ''
+               AND source_slug IS NOT NULL
+               AND source_slug <> ''
              ORDER BY updated_at DESC, id DESC
              LIMIT :limit OFFSET :offset"
         );
@@ -186,7 +192,11 @@ final class Prompt
         $stmt = Database::pdo()->query(
             "SELECT COUNT(*)
              FROM prompts
-             WHERE status = 'completed' AND prompt IS NOT NULL AND prompt <> ''"
+             WHERE status = 'completed'
+               AND prompt IS NOT NULL
+               AND prompt <> ''
+               AND source_slug IS NOT NULL
+               AND source_slug <> ''"
         );
 
         return (int) $stmt->fetchColumn();
@@ -373,6 +383,52 @@ final class Prompt
     public static function publicIdentifier(array $prompt): string
     {
         return (string) ($prompt['source_slug'] ?: $prompt['id']);
+    }
+
+    public static function backfillMissingSlugs(): int
+    {
+        $pdo = Database::pdo();
+        $ownsTransaction = ! $pdo->inTransaction();
+
+        if ($ownsTransaction) {
+            $pdo->beginTransaction();
+        }
+
+        try {
+            $prompts = $pdo->query(
+                "SELECT id, title
+                 FROM prompts
+                 WHERE source_slug IS NULL OR TRIM(source_slug) = ''
+                 ORDER BY id"
+            )->fetchAll();
+            $update = $pdo->prepare(
+                "UPDATE prompts
+                 SET source_slug = :source_slug, updated_at = NOW()
+                 WHERE id = :id AND (source_slug IS NULL OR TRIM(source_slug) = '')"
+            );
+            $updated = 0;
+
+            foreach ($prompts as $prompt) {
+                $id = (int) $prompt['id'];
+                $update->execute([
+                    'source_slug' => self::uniqueSlug((string) $prompt['title'], $id),
+                    'id' => $id,
+                ]);
+                $updated += $update->rowCount();
+            }
+
+            if ($ownsTransaction) {
+                $pdo->commit();
+            }
+
+            return $updated;
+        } catch (\Throwable $exception) {
+            if ($ownsTransaction && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
+            throw $exception;
+        }
     }
 
     public static function slugify(string $value): string

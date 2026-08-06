@@ -129,6 +129,8 @@ final class PromptController extends Controller
             'style_notes' => $styleNotes,
             'ai_provider' => trim((string) ($data['ai_provider'] ?? '')),
             'ai_model' => trim((string) ($data['ai_model'] ?? '')),
+            'tested_models' => trim((string) ($data['tested_models'] ?? '')),
+            'reviewed_at' => $this->dateTimeOrNull((string) ($data['reviewed_at'] ?? '')),
             'status' => $status,
             'error_message' => trim((string) ($data['error_message'] ?? '')),
             'generated_at' => $this->dateTimeOrNull((string) ($data['generated_at'] ?? '')),
@@ -420,6 +422,8 @@ final class PromptController extends Controller
             'style_notes' => $styleNotes,
             'ai_provider' => trim((string) ($data['ai_provider'] ?? '')),
             'ai_model' => trim((string) ($data['ai_model'] ?? '')),
+            'tested_models' => trim((string) ($data['tested_models'] ?? '')),
+            'reviewed_at' => $this->dateTimeOrNull((string) ($data['reviewed_at'] ?? '')),
             'status' => $status,
             'generated_at' => $status === 'completed' ? date('Y-m-d H:i:s') : null,
         ]);
@@ -435,6 +439,7 @@ final class PromptController extends Controller
 
         Validator::required($errors, 'title', $data['title'] ?? '', 'Title');
         Validator::max($errors, 'title', $data['title'] ?? '', 255, 'Title');
+        Validator::max($errors, 'tested_models', $data['tested_models'] ?? '', 500, 'Tested models');
         Validator::in($errors, 'category', (string) ($data['category'] ?? ''), PromptModel::CATEGORIES, 'Category');
 
         return $errors;

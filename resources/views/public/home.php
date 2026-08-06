@@ -1,7 +1,8 @@
 <section class="library-header">
     <div class="library-title">
-        <p class="eyebrow">Prompt index</p>
-        <h1>Search <?= (int) $publicCompletedCount ?> AI prompts.</h1>
+        <p class="eyebrow">MyPromptArt</p>
+        <h1>1,000+ AI Image Prompts for Photo Editing</h1>
+        <p class="listing-intro">Browse curated, copy-ready AI prompts for portraits, product photography, fashion, lifestyle and digital art. Find prompts by category, visual style and compatible AI model.</p>
         <div class="hero-stats" aria-label="Library summary">
             <span><strong><?= (int) $publicCompletedCount ?></strong> completed</span>
             <span><strong><?= count($categories) ?></strong> categories</span>
@@ -9,7 +10,7 @@
         </div>
         <div class="category-strip" aria-label="Prompt categories">
             <?php foreach ($categories as $category): ?>
-                <a href="<?= url('/prompts/category/' . rawurlencode($category)) ?>">
+                <a href="<?= url('/ai-prompts/' . rawurlencode($category)) ?>">
                     <?= e(\App\Services\SeoService::categoryName($category)) ?>
                     <span class="sr-only">(<?= (int) ($categoryCounts[$category] ?? 0) ?> prompts)</span>
                 </a>

@@ -1,6 +1,6 @@
-# Prompt Library Core PHP
+# MyPromptArt Core PHP
 
-A production-oriented Core PHP 8.2+ prompt library. Public visitors can browse, search, open, and copy completed prompts only. Admins manage prompt creation, uploads, publishing, queue retries, and deletion.
+A production-oriented Core PHP 8.2+ collection of AI prompts. Public visitors can browse, search, open, and copy completed prompts only. Admins manage prompt creation, uploads, publishing, queue retries, and deletion.
 
 ## Stack
 
@@ -43,7 +43,7 @@ DB_PASSWORD=...
 ADSENSE_ENABLED=false
 ADSENSE_PUBLISHER_ID=
 AI_PROVIDER=none
-CONTACT_EMAIL=
+CONTACT_EMAIL=hello@mypromptart.com
 GOOGLE_SITE_VERIFICATION=
 BING_SITE_VERIFICATION=
 ```
@@ -72,8 +72,8 @@ Use Supervisor, systemd, cron, or your hosting control panel to keep the worker 
 
 - `/`
 - `/prompts`
-- `/prompts/category/{category}`
-- `/prompts/{id-or-slug}`
+- `/ai-prompts/{category}`
+- `/prompts/{slug}`
 - `/about`
 - `/contact`
 - `/privacy-policy`
@@ -83,6 +83,10 @@ Use Supervisor, systemd, cron, or your hosting control panel to keep the worker 
 - `/ads.txt`
 
 The public library queries only `status = completed` prompts with non-empty prompt text. Public users cannot upload, generate, edit, or delete content.
+
+Category landing pages use clean, indexable `/ai-prompts/{category}` URLs with category-specific titles, headings, descriptions, introductory copy, breadcrumbs, and structured data. Legacy `/prompts/category/{category}` URLs redirect permanently. Search, category-filter, sort, and other non-pagination query combinations remain `noindex,follow` and canonicalize to a clean landing page.
+
+Prompt detail URLs use title-based slugs. Running `php database/migrate.php` backfills missing slugs for legacy records; old numeric prompt URLs remain available only as permanent `301` redirects to their canonical slug URLs.
 
 ## Admin Routes
 
@@ -99,6 +103,15 @@ Images are stored under `public/storage/prompts`. The included `public/storage/.
 
 Reference-image creation accepts 1-10 JPG, PNG, or WebP files, max 5MB each. The prompt table stores the primary reference image directly and stores the full reference image list in `style_notes.reference_images`.
 
+Generate descriptive WebP/AVIF prompt images and responsive 480px/960px variants with a dry run first:
+
+```bash
+php scripts/optimize-prompt-images.php
+php scripts/optimize-prompt-images.php --apply
+```
+
+The public templates use intrinsic dimensions, descriptive alt text, `picture`/`srcset`, lazy-loaded card images, and an eager high-priority detail image. Use `--force` only when existing optimized variants must be rebuilt.
+
 ## SEO and Ads
 
 The app renders unique titles and descriptions, absolute canonical URLs, Open Graph and Twitter cards, JSON-LD, visible breadcrumbs, `robots.txt`, image-aware sitemaps, and `ads.txt`.
@@ -106,7 +119,8 @@ The app renders unique titles and descriptions, absolute canonical URLs, Open Gr
 - `/`, trust pages, clean library pagination, populated category pages, and completed prompt details are indexable.
 - Search, sort, and query-string filter combinations are `noindex,follow` and canonicalize to their clean library or category page.
 - Admin, auth, forbidden, missing, and server-error responses are `noindex,nofollow`.
-- Sitemaps include only completed prompts with non-empty prompt text. At more than 50,000 public URLs, `/sitemap.xml` automatically becomes a sitemap index with 45,000-prompt chunks under `/sitemaps/*`.
+- Sitemaps include only completed prompts with non-empty prompt text and a canonical slug. At more than 50,000 public URLs, `/sitemap.xml` automatically becomes a sitemap index with 45,000-prompt chunks under `/sitemaps/*`.
+- Prompt detail pages disclose the curator, publication date, explicitly recorded model tests, last editorial review, and source link when available. Admins maintain `tested_models` and `reviewed_at`; the site never infers testing from generation-provider metadata.
 - Ads are shown only when `ADSENSE_ENABLED=true`, `ADSENSE_PUBLISHER_ID` is configured, and the page is indexable with non-empty results.
 
 ### Search Console setup
@@ -133,6 +147,7 @@ For read-only integration checks, start the local app and run:
 
 ```bash
 SEO_TEST_BASE_URL=http://127.0.0.1:8080 php tests/http-seo.php
+SEO_TEST_BASE_URL=http://127.0.0.1:8080 SEO_TEST_FULL_SITEMAP=true php tests/http-seo.php
 ```
 
-The HTTP suite uses the configured database without writing to it. It verifies homepage/library/category/prompt metadata, self-canonical pagination, noindex search results, sitemap XML, social crawler output, real 404 responses, auth headers, and exclusion of a non-public prompt when one exists.
+The HTTP suite uses the configured database without writing to it. It verifies homepage/library/category/prompt metadata, self-canonical pagination, noindex search results, sitemap XML, social crawler output, real 404 responses, auth headers, and exclusion of a non-public prompt when one exists. The optional full-sitemap mode requests every prompt URL and verifies HTTP 200, self-canonical markup, indexability, and response headers.

@@ -23,13 +23,29 @@ final class PromptController extends Controller
 
     public function category(Request $request, string $category): Response
     {
+        $originalCategory = trim($category);
+        $category = strtolower($originalCategory);
+
+        if (! in_array($category, Prompt::CATEGORIES, true)) {
+            return $this->notFound($request, 'Category not found');
+        }
+
+        if ($originalCategory !== $category) {
+            return $this->categoryRedirect($request, $category);
+        }
+
+        return $this->listing($request, $category, true);
+    }
+
+    public function legacyCategory(Request $request, string $category): Response
+    {
         $category = strtolower(trim($category));
 
         if (! in_array($category, Prompt::CATEGORIES, true)) {
             return $this->notFound($request, 'Category not found');
         }
 
-        return $this->listing($request, $category, true);
+        return $this->categoryRedirect($request, $category);
     }
 
     public function show(Request $request, string $identifier): Response
@@ -50,13 +66,26 @@ final class PromptController extends Controller
         $description = SeoService::description((string) $prompt['prompt']);
         $categoryName = SeoService::categoryName((string) $prompt['category']);
         $categoryUrl = SeoService::categoryUrl((string) $prompt['category']);
-        $image = PromptImageService::metadata($prompt, true);
+        $image = PromptImageService::metadata($prompt);
         $publishedAt = SeoService::isoDate($prompt['generated_at'] ?? $prompt['created_at'] ?? null);
         $modifiedAt = SeoService::isoDate($prompt['updated_at'] ?? null);
+        $reviewedAt = SeoService::isoDate($prompt['reviewed_at'] ?? null);
+        $testedModels = trim((string) ($prompt['tested_models'] ?? ''));
+        $sourceUrl = trim((string) ($prompt['source_url'] ?? ''));
+
+        if (filter_var($sourceUrl, FILTER_VALIDATE_URL) === false
+            || preg_match('#^https?://#i', $sourceUrl) !== 1) {
+            $sourceUrl = null;
+        }
+
+        $sourceLabel = trim((string) ($prompt['source_site'] ?? ''));
+
+        if ($sourceLabel === '' && $sourceUrl !== null) {
+            $sourceLabel = (string) (parse_url($sourceUrl, PHP_URL_HOST) ?: 'Original source');
+        }
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => app_url('/')],
-            ['name' => 'Prompts', 'url' => app_url('/prompts')],
-            ['name' => $categoryName, 'url' => $categoryUrl],
+            ['name' => SeoService::siteName(), 'url' => app_url('/')],
+            ['name' => SeoService::categoryHeading((string) $prompt['category']), 'url' => $categoryUrl],
             ['name' => (string) $prompt['title'], 'url' => SeoService::promptUrl($prompt)],
         ];
 
@@ -76,6 +105,7 @@ final class PromptController extends Controller
             'structuredData' => [
                 SeoService::promptSchema($prompt),
                 SeoService::breadcrumbSchema($breadcrumbs),
+                SeoService::organizationSchema(),
             ],
             'showAds' => SeoService::canShowAds(),
             'prompt' => $prompt,
@@ -84,9 +114,13 @@ final class PromptController extends Controller
             'styleNotes' => Prompt::decodeStyleNotes($prompt['style_notes'] ?? null),
             'breadcrumbs' => $breadcrumbs,
             'categoryName' => $categoryName,
-            'categoryPath' => '/prompts/category/' . rawurlencode((string) $prompt['category']),
+            'categoryPath' => '/ai-prompts/' . rawurlencode((string) $prompt['category']),
             'publishedAt' => $publishedAt,
             'modifiedAt' => $modifiedAt,
+            'reviewedAt' => $reviewedAt,
+            'testedModels' => $testedModels,
+            'sourceUrl' => $sourceUrl,
+            'sourceLabel' => $sourceLabel,
         ]);
     }
 
@@ -144,12 +178,10 @@ final class PromptController extends Controller
             return $this->notFound($request, 'Library page not found');
         }
 
-        $hasTemporaryFilter = $query !== ''
-            || (! $dedicatedCategory && $rawCategory !== '')
-            || $rawSort !== 'newest';
+        $hasTemporaryFilter = array_diff(array_keys($request->queryParams()), ['page']) !== [];
         $noindex = $hasTemporaryFilter || (int) $results['total'] === 0;
         $basePath = $dedicatedCategory
-            ? '/prompts/category/' . rawurlencode((string) $routeCategory)
+            ? '/ai-prompts/' . rawurlencode((string) $routeCategory)
             : '/prompts';
         $cleanCanonical = $category !== '' && ! $dedicatedCategory
             ? SeoService::categoryUrl($category)
@@ -158,29 +190,32 @@ final class PromptController extends Controller
             ? $cleanCanonical
             : SeoService::listingUrl($basePath, $page);
         $categoryName = $category !== '' ? SeoService::categoryName($category) : null;
-        $description = $category !== ''
-            ? SeoService::categoryDescription($category)
+        $metaDescription = $category !== ''
+            ? SeoService::categoryMetaDescription($category, (int) $results['total'])
             : 'Search and browse completed AI image prompts by subject, visual style, popularity, and category.';
+        $listingIntro = $category !== ''
+            ? SeoService::categoryIntro($category)
+            : $metaDescription;
         $pageSuffix = $page > 1 ? ' - Page ' . $page : '';
         $metaTitle = $categoryName !== null
-            ? $categoryName . ' AI Image Prompts' . $pageSuffix . ' | ' . SeoService::siteName()
-            : 'AI Image Prompt Library' . $pageSuffix . ' | ' . SeoService::siteName();
+            ? SeoService::categoryMetaTitle($category) . $pageSuffix . ' | ' . SeoService::siteName()
+            : 'AI Image Prompts' . $pageSuffix . ' | ' . SeoService::siteName();
         $breadcrumbs = $dedicatedCategory ? [
-            ['name' => 'Home', 'url' => app_url('/')],
-            ['name' => 'Prompts', 'url' => app_url('/prompts')],
-            ['name' => (string) $categoryName, 'url' => app_url($basePath)],
+            ['name' => SeoService::siteName(), 'url' => app_url('/')],
+            ['name' => SeoService::categoryHeading($category), 'url' => app_url($basePath)],
         ] : [];
         $structuredData = [];
 
         if (! $noindex) {
             $structuredData[] = SeoService::collectionSchema(
-                $categoryName !== null ? $categoryName . ' AI Image Prompts' : 'AI Image Prompt Library',
-                $description,
+                $categoryName !== null ? $categoryName . ' AI Image Prompts' : 'MyPromptArt AI Image Prompts',
+                $metaDescription,
                 $canonical,
                 (int) $results['total'],
                 $results['items']
             );
             $structuredData[] = SeoService::websiteSchema();
+            $structuredData[] = SeoService::organizationSchema();
 
             if ($breadcrumbs !== []) {
                 $structuredData[] = SeoService::breadcrumbSchema($breadcrumbs);
@@ -191,9 +226,9 @@ final class PromptController extends Controller
         $categories = array_keys(array_filter($categoryCounts, static fn (int $count): bool => $count > 0));
 
         return $this->view('prompts/index', [
-            'title' => $categoryName !== null ? $categoryName . ' prompts' : 'Prompt library',
+            'title' => $categoryName !== null ? $categoryName . ' prompts' : SeoService::siteName() . ' library',
             'metaTitle' => $metaTitle,
-            'metaDescription' => $description,
+            'metaDescription' => $metaDescription,
             'canonical' => $canonical,
             'noindex' => $noindex,
             'structuredData' => $structuredData,
@@ -206,14 +241,22 @@ final class PromptController extends Controller
             'results' => $results,
             'categories' => $categories,
             'categoryCounts' => $categoryCounts,
-            'listingEyebrow' => $dedicatedCategory ? 'Prompt category' : 'Prompt library',
+            'listingEyebrow' => $dedicatedCategory ? 'Curated AI prompt collection' : SeoService::siteName() . ' library',
             'listingHeading' => $categoryName !== null
-                ? $categoryName . ' AI image prompts'
+                ? SeoService::categoryHeading($category)
                 : 'Search completed prompts',
-            'listingIntro' => $description,
+            'listingIntro' => $listingIntro,
             'breadcrumbs' => $breadcrumbs,
             'dedicatedCategory' => $dedicatedCategory,
         ]);
+    }
+
+    private function categoryRedirect(Request $request, string $category): Response
+    {
+        $target = '/ai-prompts/' . rawurlencode($category);
+        $query = http_build_query($request->queryParams());
+
+        return Response::redirect($query !== '' ? $target . '?' . $query : $target, 301);
     }
 
     private function notFound(Request $request, string $title): Response

@@ -51,8 +51,8 @@ filledRect($image, 0, 0, $width, 58, $white);
 line($image, 0, 57, $width, 57, $line);
 roundedRect($image, 24, 14, 34, 34, 10, color($image, '#eaf7ff'));
 roundedBorder($image, 24, 14, 34, 34, 10, color($image, '#bde2f5'), 1);
-drawText($image, 'PL', 35, 38, 13, $fontBold, $blue);
-drawText($image, 'Prompt Library', 72, 40, 16, $fontBold, $ink);
+drawText($image, 'MPA', 30, 38, 11, $fontBold, $blue);
+drawText($image, 'MyPromptArt', 72, 40, 16, $fontBold, $ink);
 
 roundedRect($image, 278, 11, 410, 38, 9, $white);
 roundedBorder($image, 278, 11, 410, 38, 9, $line, 1);

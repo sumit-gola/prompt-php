@@ -2,7 +2,7 @@
 $identifier = \App\Models\Prompt::publicIdentifier($prompt);
 $fullTitle = (string) $prompt['title'];
 $cardTitle = str_limit_words($fullTitle, 44);
-$cardImage = \App\Services\PromptImageService::metadata($prompt, true);
+$cardImage = \App\Services\PromptImageService::metadata($prompt);
 $cardImageLoading = 'lazy';
 $cardImageFetchPriority = 'auto';
 ?>
@@ -22,7 +22,7 @@ $cardImageFetchPriority = 'auto';
     <div class="prompt-card-body">
         <div class="prompt-card-top">
             <div class="prompt-meta">
-                <a href="<?= url('/prompts/category/' . rawurlencode((string) $prompt['category'])) ?>">
+                <a href="<?= url('/ai-prompts/' . rawurlencode((string) $prompt['category'])) ?>">
                     <?= e(\App\Services\SeoService::categoryName((string) $prompt['category'])) ?>
                 </a>
                 <span><?= (int) $prompt['copy_count'] ?> copied</span>

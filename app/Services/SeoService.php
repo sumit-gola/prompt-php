@@ -9,36 +9,63 @@ use App\Models\Prompt;
 
 final class SeoService
 {
+    private const SITE_NAME = 'MyPromptArt';
+
+    private const SITE_ALTERNATE_NAME = 'MPA';
+
     private const CATEGORY_CONTENT = [
         'portrait' => [
             'name' => 'Portrait',
-            'description' => 'Explore completed AI portrait prompts for expressive faces, studio lighting, editorial compositions, and polished character photography.',
+            'title' => 'Portrait AI Prompts for Photo Editing',
+            'heading' => 'Portrait AI Prompts',
+            'meta' => 'Explore %d curated portrait AI prompts for cinematic photos, studio headshots, fashion editorials and identity-preserving photo edits. Preview and copy each prompt free.',
+            'intro' => 'Discover copy-ready portrait AI prompts designed for realistic headshots, cinematic portraits, fashion photography, profile pictures and creative photo transformations. Filter by style, lighting, composition and supported AI model.',
         ],
         'product' => [
             'name' => 'Product',
-            'description' => 'Browse completed AI product prompts for commercial still life, packaging, advertising scenes, and clean studio presentation.',
+            'title' => 'Product AI Prompts for Commercial Photography',
+            'heading' => 'Product AI Prompts',
+            'meta' => 'Explore %d curated product AI prompts for ecommerce photos, packaging, advertising, studio still life and polished brand visuals. Preview and copy prompts free.',
+            'intro' => 'Discover copy-ready product AI prompts for ecommerce listings, advertising campaigns, packaging mockups, studio still life and branded compositions. Explore lighting, backgrounds, camera angles and supported AI models.',
         ],
         'fashion' => [
             'name' => 'Fashion',
-            'description' => 'Discover completed AI fashion prompts for lookbooks, editorial styling, campaign imagery, garments, and accessories.',
+            'title' => 'Fashion AI Prompts for Editorial Photography',
+            'heading' => 'Fashion AI Prompts',
+            'meta' => 'Explore %d curated fashion AI prompts for editorial shoots, campaign images, lookbooks, styling concepts and garment photography. Preview and copy prompts free.',
+            'intro' => 'Discover copy-ready fashion AI prompts for editorial shoots, lookbooks, campaigns, runway concepts, garment details and creative styling. Explore lighting, poses, composition and supported AI models.',
         ],
         'lifestyle' => [
             'name' => 'Lifestyle',
-            'description' => 'Find completed AI lifestyle prompts for natural moments, travel, interiors, everyday scenes, and creator-led photography.',
+            'title' => 'Lifestyle AI Prompts for Natural Photography',
+            'heading' => 'Lifestyle AI Prompts',
+            'meta' => 'Explore %d curated lifestyle AI prompts for travel, interiors, candid moments, creator content and natural photography. Preview and copy prompts free.',
+            'intro' => 'Discover copy-ready lifestyle AI prompts for candid moments, travel scenes, interiors, everyday storytelling and creator-led photography. Explore mood, setting, lighting, composition and supported AI models.',
         ],
         'art' => [
             'name' => 'Art',
-            'description' => 'Explore completed AI art prompts covering illustration, painting, mixed media, conceptual imagery, and experimental visual styles.',
+            'title' => 'Art AI Prompts for Creative Image Generation',
+            'heading' => 'Art AI Prompts',
+            'meta' => 'Explore %d curated art AI prompts for illustration, painting, concept art, mixed media and experimental visual styles. Preview and copy prompts free.',
+            'intro' => 'Discover copy-ready art AI prompts for illustration, painting, concept art, mixed media and experimental visual styles. Explore medium, color, composition, artistic direction and supported AI models.',
         ],
         'other' => [
             'name' => 'Other',
-            'description' => 'Browse completed AI image prompts that cross categories, combine visual approaches, or explore distinctive creative concepts.',
+            'title' => 'Creative AI Prompts for Visual Experiments',
+            'heading' => 'Creative AI Prompts',
+            'meta' => 'Explore %d curated creative AI prompts that combine categories, visual approaches and experimental concepts. Preview and copy prompts free.',
+            'intro' => 'Discover copy-ready creative AI prompts that cross categories, combine visual approaches and explore distinctive concepts. Refine the style, composition, mood and supported AI model for your project.',
         ],
     ];
 
     public static function siteName(): string
     {
-        return trim((string) env('APP_NAME', 'MyPromptArt')) ?: 'MyPromptArt';
+        return self::SITE_NAME;
+    }
+
+    public static function siteAlternateName(): string
+    {
+        return self::SITE_ALTERNATE_NAME;
     }
 
     public static function promptUrl(array $prompt): string
@@ -48,7 +75,7 @@ final class SeoService
 
     public static function categoryUrl(string $category): string
     {
-        return app_url('/prompts/category/' . rawurlencode($category));
+        return app_url('/ai-prompts/' . rawurlencode(strtolower($category)));
     }
 
     public static function listingUrl(string $path, int $page = 1): string
@@ -80,12 +107,12 @@ final class SeoService
 
     public static function defaultShareImageUrl(): string
     {
-        return app_url('/assets/img/share-card-public.png');
+        return app_url('/assets/img/share-card-public.png?v=20260807brand1');
     }
 
     public static function defaultShareImageAlt(): string
     {
-        return 'MyPromptArt AI prompt library preview';
+        return 'MyPromptArt curated AI prompt collection preview';
     }
 
     public static function description(?string $text, int $limit = 155): string
@@ -115,8 +142,33 @@ final class SeoService
 
     public static function categoryDescription(string $category): string
     {
-        return self::CATEGORY_CONTENT[$category]['description']
-            ?? 'Browse completed AI image prompts curated for practical creative work.';
+        return self::categoryIntro($category);
+    }
+
+    public static function categoryMetaTitle(string $category): string
+    {
+        return self::CATEGORY_CONTENT[$category]['title']
+            ?? self::categoryName($category) . ' AI Prompts';
+    }
+
+    public static function categoryHeading(string $category): string
+    {
+        return self::CATEGORY_CONTENT[$category]['heading']
+            ?? self::categoryName($category) . ' AI Prompts';
+    }
+
+    public static function categoryMetaDescription(string $category, int $count): string
+    {
+        $template = self::CATEGORY_CONTENT[$category]['meta']
+            ?? 'Explore %d curated AI image prompts ready to preview and copy free.';
+
+        return sprintf($template, max(0, $count));
+    }
+
+    public static function categoryIntro(string $category): string
+    {
+        return self::CATEGORY_CONTENT[$category]['intro']
+            ?? 'Discover copy-ready AI image prompts curated for practical creative work. Explore styles, composition and supported AI models.';
     }
 
     public static function imageMetadata(?string $path, string $alt): ?array
@@ -205,8 +257,10 @@ final class SeoService
             '@type' => 'WebSite',
             '@id' => app_url('/#website'),
             'name' => self::siteName(),
+            'alternateName' => self::siteAlternateName(),
             'url' => app_url('/'),
-            'description' => 'A searchable public library of completed AI image prompts.',
+            'description' => 'Discover curated AI image and photo-editing prompts for portraits, fashion, products, art and lifestyle.',
+            'publisher' => ['@id' => app_url('/#organization')],
             'potentialAction' => [
                 '@type' => 'SearchAction',
                 'target' => app_url('/prompts') . '?q={search_term_string}',
@@ -217,12 +271,25 @@ final class SeoService
 
     public static function organizationSchema(): array
     {
+        $logoUrl = app_url('/assets/img/my-prompt-art-logo.webp');
+
         return [
             '@context' => 'https://schema.org',
             '@type' => 'Organization',
             '@id' => app_url('/#organization'),
             'name' => self::siteName(),
+            'alternateName' => self::siteAlternateName(),
             'url' => app_url('/'),
+            'logo' => [
+                '@type' => 'ImageObject',
+                '@id' => app_url('/#logo'),
+                'url' => $logoUrl,
+                'contentUrl' => $logoUrl,
+                'width' => 1200,
+                'height' => 408,
+                'caption' => self::siteName(),
+            ],
+            'image' => ['@id' => app_url('/#logo')],
         ];
     }
 
@@ -242,7 +309,7 @@ final class SeoService
                 'url' => self::promptUrl($prompt),
                 'name' => (string) $prompt['title'],
             ];
-            $image = PromptImageService::metadata($prompt, true);
+            $image = PromptImageService::metadata($prompt);
 
             if ($image !== null) {
                 $item['image'] = $image['url'];
@@ -259,6 +326,7 @@ final class SeoService
             'description' => $description,
             'url' => $url,
             'isPartOf' => ['@id' => app_url('/#website')],
+            'publisher' => ['@id' => app_url('/#organization')],
             'mainEntity' => [
                 '@type' => 'ItemList',
                 'numberOfItems' => $count,
@@ -277,6 +345,7 @@ final class SeoService
             'description' => $description,
             'url' => $url,
             'isPartOf' => ['@id' => app_url('/#website')],
+            'publisher' => ['@id' => app_url('/#organization')],
         ];
     }
 
@@ -293,8 +362,25 @@ final class SeoService
             'url' => $url,
             'mainEntityOfPage' => $url,
             'genre' => self::categoryName((string) $prompt['category']),
+            'keywords' => [self::categoryName((string) $prompt['category']) . ' AI prompts'],
+            'inLanguage' => 'en',
             'isPartOf' => ['@id' => app_url('/#website')],
+            'publisher' => ['@id' => app_url('/#organization')],
         ];
+
+        $testedModels = self::testedModelNames($prompt['tested_models'] ?? null);
+
+        if ($testedModels !== []) {
+            $schema['keywords'] = array_merge($schema['keywords'], $testedModels);
+            $schema['mentions'] = array_map(
+                static fn (string $model): array => [
+                    '@type' => 'SoftwareApplication',
+                    'name' => $model,
+                    'description' => 'AI model recorded as tested with this prompt.',
+                ],
+                $testedModels
+            );
+        }
 
         $published = self::isoDate($prompt['generated_at'] ?? $prompt['created_at'] ?? null);
         $modified = self::isoDate($prompt['updated_at'] ?? null);
@@ -307,7 +393,7 @@ final class SeoService
             $schema['dateModified'] = $modified;
         }
 
-        $image = PromptImageService::metadata($prompt, true);
+        $image = PromptImageService::metadata($prompt);
 
         if ($image !== null) {
             $imageObject = [
@@ -373,5 +459,30 @@ final class SeoService
             preg_match('/\.gif$/i', $imagePath) === 1 => 'image/gif',
             default => 'image/png',
         };
+    }
+
+    private static function testedModelNames(mixed $value): array
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return [];
+        }
+
+        $models = preg_split('/\s*(?:,|\/|;|\|)\s*/u', $value) ?: [];
+        $unique = [];
+
+        foreach ($models as $model) {
+            $model = trim($model);
+
+            if ($model === '') {
+                continue;
+            }
+
+            $key = mb_strtolower($model);
+            $unique[$key] ??= $model;
+        }
+
+        return array_values($unique);
     }
 }

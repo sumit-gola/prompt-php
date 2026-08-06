@@ -107,10 +107,15 @@
         <label>Source modified at
             <input name="source_modified_at" type="datetime-local">
         </label>
+        <label>Tested with
+            <input name="tested_models" type="text" maxlength="500" placeholder="Gemini, ChatGPT Image, Midjourney">
+        </label>
+        <label>Last reviewed
+            <input name="reviewed_at" type="datetime-local">
+        </label>
         <label class="span-2">Style notes JSON
             <textarea name="style_notes" rows="5" placeholder='{"lighting":"soft directional","camera":"85mm"}'></textarea>
         </label>
         <button class="button span-2" type="submit">Create prompt</button>
     </form>
 </section>
-

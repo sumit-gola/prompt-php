@@ -21,7 +21,8 @@ $router->get('/ads.txt', [PublicController::class, 'ads']);
 
 $router->get('/prompts', [PromptController::class, 'index']);
 $router->post('/prompts/{id}/copy', [PromptController::class, 'copy'], ['csrf']);
-$router->get('/prompts/category/{category}', [PromptController::class, 'category']);
+$router->get('/ai-prompts/{category}', [PromptController::class, 'category']);
+$router->get('/prompts/category/{category}', [PromptController::class, 'legacyCategory']);
 $router->get('/prompts/{identifier}', [PromptController::class, 'show']);
 
 $router->get('/register', [AuthController::class, 'showRegister'], ['guest']);

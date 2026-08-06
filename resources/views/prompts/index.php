@@ -21,7 +21,7 @@
         <p class="muted"><?= (int) $results['total'] ?> result<?= (int) $results['total'] === 1 ? '' : 's' ?></p>
         <div class="category-strip" aria-label="Prompt categories">
             <?php foreach ($categories as $category): ?>
-                <a href="<?= url('/prompts/category/' . rawurlencode($category)) ?>">
+                <a href="<?= url('/ai-prompts/' . rawurlencode($category)) ?>">
                     <?= e(\App\Services\SeoService::categoryName($category)) ?>
                 </a>
             <?php endforeach; ?>

@@ -1,6 +1,8 @@
 <?php
 $pageTitle = $title ?? 'Admin';
 $user = \App\Core\Auth::user();
+$siteName = \App\Services\SeoService::siteName();
+$siteAlternateName = \App\Services\SeoService::siteAlternateName();
 ?>
 <!doctype html>
 <html lang="en">
@@ -8,16 +10,16 @@ $user = \App\Core\Auth::user();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title><?= e($pageTitle) ?> - Prompt Library Admin</title>
+    <title><?= e($pageTitle) ?> | <?= e($siteName) ?> Admin</title>
     <link rel="icon" href="<?= asset('favicon.png') ?>" type="image/png" sizes="512x512">
     <link rel="apple-touch-icon" href="<?= asset('apple-touch-icon.png') ?>" sizes="180x180">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806logo2">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807seo1">
 </head>
 <body class="admin-shell">
     <aside class="admin-sidebar">
         <a class="brand admin-brand" href="<?= url('/admin') ?>">
-            <span class="brand-mark">PL</span>
-            <span>Admin</span>
+            <span class="brand-mark"><?= e($siteAlternateName) ?></span>
+            <span><?= e($siteName) ?> Admin</span>
         </a>
         <nav class="admin-nav" aria-label="Admin navigation">
             <a href="<?= url('/admin') ?>">Dashboard</a>

@@ -52,6 +52,7 @@ foreach ([
     ['GET', '/sitemaps/pages.xml'],
     ['GET', '/sitemaps/prompts-{page}.xml'],
     ['GET', '/ads.txt'],
+    ['GET', '/ai-prompts/{category}'],
     ['GET', '/prompts/category/{category}'],
 ] as [$method, $path]) {
     $assert($findRoute($method, $path) !== null, "Missing public route {$method} {$path}");
@@ -87,7 +88,7 @@ $categoryRoutePosition = array_search('/prompts/category/{category}', $routePath
 $promptRoutePosition = array_search('/prompts/{identifier}', $routePaths, true);
 $assert(
     is_int($categoryRoutePosition) && is_int($promptRoutePosition) && $categoryRoutePosition < $promptRoutePosition,
-    'Category route must be registered before the generic prompt route.'
+    'Legacy category route must be registered before the generic prompt route.'
 );
 
 $promptReflection = new ReflectionClass(\App\Models\Prompt::class);

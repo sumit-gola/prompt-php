@@ -1,10 +1,28 @@
-<section class="text-page">
-    <p class="eyebrow">Contact</p>
-    <h1>Contact MyPromptArt</h1>
-    <p>Use this contact channel for editorial corrections, prompt-source questions, licensing concerns, privacy requests, or account support.</p>
-    <?php if ($contactEmail !== ''): ?>
-        <p>Email <a href="mailto:<?= e($contactEmail) ?>"><?= e($contactEmail) ?></a>. Include the prompt page URL when your message concerns a specific library entry.</p>
-    <?php else: ?>
-        <p>Contact details are being configured. Until they are published here, use the support channel associated with the site owner.</p>
-    <?php endif; ?>
+<section class="text-page contact-page">
+    <div class="trust-intro">
+        <p class="eyebrow">Contact / Direct line</p>
+        <h1>Contact the MyPromptArt team.</h1>
+        <p class="trust-lede">For prompt licensing, copyright concerns, partnerships, editorial corrections, privacy requests, or support, use the email address below.</p>
+    </div>
+
+    <div class="contact-dossier">
+        <div>
+            <span>Email</span>
+            <strong><a href="mailto:<?= e($contactEmail) ?>"><?= e($contactEmail) ?></a></strong>
+        </div>
+        <div>
+            <span>Typical response time</span>
+            <strong>1&ndash;2 business days</strong>
+        </div>
+        <div>
+            <span>Prompt-specific requests</span>
+            <strong>Include the full prompt page URL</strong>
+        </div>
+    </div>
+
+    <aside class="contact-note">
+        <h2>What to include</h2>
+        <p>Tell us what you need, identify the relevant prompt or image, and include any source or ownership information that will help us investigate. Do not send passwords, payment details, or private reference images by email.</p>
+        <a class="button" href="mailto:<?= e($contactEmail) ?>">Email MyPromptArt</a>
+    </aside>
 </section>

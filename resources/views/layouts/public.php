@@ -1,11 +1,11 @@
 <?php
-$pageTitle = $metaTitle ?? $title ?? 'Prompt Library';
+$siteName = \App\Services\SeoService::siteName();
+$pageTitle = $metaTitle ?? $title ?? $siteName;
 $description = $metaDescription ?? 'Browse and copy curated AI image prompts.';
 $canonicalUrl = $canonical ?? app_url($_SERVER['REQUEST_URI'] ?? '/');
 $robotsDirective = ! empty($noindex)
     ? (! empty($nofollow) ? 'noindex,nofollow' : 'noindex,follow')
     : 'index,follow';
-$siteName = \App\Services\SeoService::siteName();
 $ogType = $ogType ?? 'website';
 $providedOgImage = ! empty($ogImage);
 $shareImage = $providedOgImage ? $ogImage : \App\Services\SeoService::defaultShareImageUrl();
