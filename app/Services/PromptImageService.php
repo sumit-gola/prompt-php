@@ -263,6 +263,10 @@ final class PromptImageService
 
         $path = ltrim($path, '/');
 
+        if (str_starts_with($path, 'prompts/')) {
+            $path = 'storage/' . $path;
+        }
+
         if (str_contains($path, '../') || ! str_starts_with($path, 'storage/')) {
             return null;
         }

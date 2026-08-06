@@ -24,7 +24,8 @@ $testRoot = sys_get_temp_dir() . '/mypromptart-image-seo-' . bin2hex(random_byte
 $sourceDirectory = $testRoot . '/storage/prompts/2026/08';
 mkdir($sourceDirectory, 0755, true);
 
-$sourceRelativePath = 'storage/prompts/2026/08/4b19c328-1913-4317-a359-fe5cb3dec87d.jpg';
+$storedSourcePath = 'prompts/2026/08/4b19c328-1913-4317-a359-fe5cb3dec87d.jpg';
+$sourceRelativePath = 'storage/' . $storedSourcePath;
 $sourceAbsolutePath = $testRoot . '/' . $sourceRelativePath;
 $source = imagecreatetruecolor(1200, 800);
 $background = imagecolorallocate($source, 15, 45, 80);
@@ -44,8 +45,8 @@ $prompt = [
     'title' => 'Double Exposure Watercolor Portrait with Blue Ink Splash Effect',
     'source_slug' => 'double-exposure-watercolor-portrait-with-blue-ink-splash-effect',
     'category' => 'portrait',
-    'thumbnail_path' => $sourceRelativePath,
-    'reference_image_path' => $sourceRelativePath,
+    'thumbnail_path' => $storedSourcePath,
+    'reference_image_path' => $storedSourcePath,
     'copy_count' => 4,
     'prompt' => 'Create a double exposure watercolor portrait with a navy blue ink splash effect.',
 ];
