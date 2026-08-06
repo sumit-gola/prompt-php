@@ -8,7 +8,7 @@ if (! extension_loaded('gd')) {
 }
 
 $root = dirname(__DIR__);
-$target = $root . '/public/assets/img/share-card-library.png';
+$target = $root . '/public/assets/img/share-card-public.png';
 
 if (! is_dir(dirname($target))) {
     mkdir(dirname($target), 0755, true);
