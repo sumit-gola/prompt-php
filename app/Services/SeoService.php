@@ -35,7 +35,7 @@ final class SeoService
 
     public static function defaultShareImageUrl(): string
     {
-        return app_url('/assets/img/share-card.png');
+        return app_url('/assets/img/share-card-library.png');
     }
 
     public static function defaultShareImageAlt(): string
