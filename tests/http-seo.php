@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Core\Database;
 use App\Models\Prompt;
+use App\Services\AdSenseService;
 
 require dirname(__DIR__) . '/bootstrap/app.php';
 
@@ -99,6 +100,33 @@ $assert(str_contains($home, '"name":"MyPromptArt"'), 'Homepage structured data s
 $assert(str_contains($home, '"alternateName":"MPA"'), 'Homepage structured data should expose MPA as the alternate name.');
 $assert(str_contains($home, '<strong>MyPromptArt</strong>'), 'Homepage footer should use the canonical brand name.');
 $assertJsonLd($home, 'Homepage');
+$homeAdsense = AdSenseService::configuration(str_contains($home, 'class="prompt-card"'), 'home');
+
+if ($homeAdsense['client_id'] !== null) {
+    $assert(
+        $meta($home, 'google-adsense-account') === $homeAdsense['client_id'],
+        'Homepage should expose the normalized AdSense account verification meta tag.'
+    );
+} else {
+    $assert($meta($home, 'google-adsense-account') === null, 'Invalid or absent AdSense configuration must not render an account meta tag.');
+}
+
+if ($homeAdsense['loader_enabled']) {
+    $loaderUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' . $homeAdsense['client_id'];
+    $assert(substr_count($home, $loaderUrl) === 1, 'Eligible homepage should render exactly one normalized AdSense loader.');
+    $assert(! str_contains($home, 'client=' . $homeAdsense['publisher_id']), 'AdSense loader must not use the pub- seller identifier.');
+
+    if ($homeAdsense['slot_id'] !== null) {
+        $assert(str_contains($home, 'data-ad-slot="' . $homeAdsense['slot_id'] . '"'), 'Homepage should render its configured manual ad slot.');
+    } else {
+        $assert(! str_contains($home, '<ins class="adsbygoogle"'), 'Homepage should not render a manual ad unit without a real slot.');
+    }
+} else {
+    $assert(! str_contains($home, 'pagead2.googlesyndication.com'), 'Disabled or ineligible homepage must not load AdSense.');
+    $assert(! str_contains($home, '<ins class="adsbygoogle"'), 'Disabled or ineligible homepage must not render a manual ad unit.');
+}
+
+$assert(! str_contains($home, '0000000000'), 'Homepage must never expose the fake AdSense slot.');
 
 foreach ([
     '/about' => 'About MyPromptArt',
@@ -110,6 +138,12 @@ foreach ([
     $assert($brandStatus === 200, "{$brandPath} should return HTTP 200.");
     $assert(str_contains($brandPage, $expectedBrand), "{$brandPath} should use the MyPromptArt brand.");
     $assert($meta($brandPage, 'og:site_name', true) === 'MyPromptArt', "{$brandPath} should use MyPromptArt in Open Graph metadata.");
+    if ($homeAdsense['loader_enabled']) {
+        $assert(substr_count($brandPage, $loaderUrl) === 1, "{$brandPath} should render exactly one AdSense loader.");
+    } else {
+        $assert(! str_contains($brandPage, 'pagead2.googlesyndication.com'), "{$brandPath} should not load AdSense when it is disabled.");
+    }
+    $assert(! str_contains($brandPage, '<ins class="adsbygoogle"'), "{$brandPath} should remain free from manual ad units during onboarding.");
 }
 
 [$status, $about] = $request('/about');
@@ -180,6 +214,17 @@ $assert($canonical($sortedCategory) === $baseUrl . $categoryPath, 'Sorted catego
 [$status, $robots] = $request('/robots.txt');
 $assert($status === 200, 'robots.txt should return HTTP 200.');
 $assert(str_contains($robots, 'Sitemap: ' . $baseUrl . '/sitemap.xml'), 'robots.txt should advertise the canonical sitemap.');
+
+[$status, $adsTxt, $adsHeaders] = $request('/ads.txt');
+$assert($status === 200, 'ads.txt should return HTTP 200.');
+$assert(($adsHeaders['content-type'] ?? null) === 'text/plain; charset=UTF-8', 'ads.txt should use the plain-text UTF-8 content type.');
+$assert(($adsHeaders['cache-control'] ?? null) === 'public, max-age=3600', 'ads.txt should use a short public cache policy.');
+$expectedAdsTxt = AdSenseService::adsTxtLine();
+$assert(
+    $adsTxt === ($expectedAdsTxt !== null ? $expectedAdsTxt . "\n" : ''),
+    'ads.txt should contain exactly the normalized configured seller record or a safe empty response.'
+);
+$assert(! str_contains($adsTxt, 'ca-pub-'), 'ads.txt must never contain the ca-pub- client identifier.');
 
 [$status, $sitemap] = $request('/sitemap.xml');
 $assert($status === 200, 'sitemap.xml should return HTTP 200.');
@@ -317,6 +362,8 @@ if ($fullSitemapAudit) {
 $assert($status === 404, 'Missing prompt should return HTTP 404.');
 $assert($meta($missing, 'robots') === 'noindex,nofollow', 'Missing prompt should render noindex,nofollow.');
 $assert(($headers['x-robots-tag'] ?? null) === 'noindex, nofollow', 'Missing prompt should send X-Robots-Tag.');
+$assert(! str_contains($missing, 'pagead2.googlesyndication.com'), 'Missing prompt pages should not load AdSense.');
+$assert(! str_contains($missing, '<ins class="adsbygoogle"'), 'Missing prompt pages should not render manual ad units.');
 
 [$status, $login, $headers] = $request('/login');
 $assert($status === 200, 'Login page should return HTTP 200.');
@@ -324,6 +371,13 @@ $assert($meta($login, 'robots') === 'noindex,nofollow', 'Login page should rende
 $assert(($headers['x-robots-tag'] ?? null) === 'noindex, nofollow', 'Login page should send X-Robots-Tag.');
 $assert(str_contains($login, '>MPA</span>'), 'Login branding should use the MPA mark.');
 $assert(! str_contains($login, '>PL</span>'), 'Login branding should not use the legacy PL mark.');
+$assert(! str_contains($login, 'google-adsense-account'), 'Login page should not expose AdSense verification markup.');
+$assert(! str_contains($login, 'pagead2.googlesyndication.com'), 'Login page should not load AdSense.');
+
+[$status, $admin] = $request('/admin');
+$assert(in_array($status, [302, 403], true), 'Unauthenticated admin access should redirect or return forbidden.');
+$assert(! str_contains($admin, 'google-adsense-account'), 'Admin responses should not expose AdSense verification markup.');
+$assert(! str_contains($admin, 'pagead2.googlesyndication.com'), 'Admin responses should not load AdSense.');
 
 $missingSlugCount = (int) Database::pdo()->query(
     "SELECT COUNT(*) FROM prompts WHERE source_slug IS NULL OR source_slug = ''"

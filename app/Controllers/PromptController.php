@@ -108,6 +108,7 @@ final class PromptController extends Controller
                 SeoService::organizationSchema(),
             ],
             'showAds' => SeoService::canShowAds(),
+            'adPlacement' => 'detail',
             'prompt' => $prompt,
             'promptImage' => $image,
             'related' => $related,
@@ -233,6 +234,7 @@ final class PromptController extends Controller
             'noindex' => $noindex,
             'structuredData' => $structuredData,
             'showAds' => SeoService::canShowAds($noindex, (int) $results['total']),
+            'adPlacement' => 'library',
             'prevUrl' => ! $noindex && $page > 1 ? SeoService::listingUrl($basePath, $page - 1) : null,
             'nextUrl' => ! $noindex && $page < (int) $results['last_page']
                 ? SeoService::listingUrl($basePath, $page + 1)

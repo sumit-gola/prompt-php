@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Prompt;
+use App\Services\AdSenseService;
 use App\Services\PromptImageService;
 use App\Services\SeoService;
 
@@ -56,6 +57,7 @@ final class PublicController extends Controller
             'publicCompletedCount' => $publicCompletedCount,
             'stats' => $stats,
             'showAds' => SeoService::canShowAds(false, count($prompts)),
+            'adPlacement' => 'home',
         ]);
     }
 
@@ -119,13 +121,13 @@ final class PublicController extends Controller
 
     public function ads(Request $request): Response
     {
-        $publisherId = trim((string) env('ADSENSE_PUBLISHER_ID', ''));
+        $line = AdSenseService::adsTxtLine();
 
-        if (! filter_var(env('ADSENSE_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN) || $publisherId === '') {
-            return Response::text('');
-        }
-
-        return Response::text('google.com, ' . $publisherId . ', DIRECT, f08c47fec0942fa0' . "\n");
+        return Response::text(
+            $line !== null ? $line . "\n" : '',
+            200,
+            ['Cache-Control' => 'public, max-age=3600']
+        );
     }
 
     public function sitemap(Request $request): Response
@@ -200,6 +202,7 @@ final class PublicController extends Controller
                 SeoService::organizationSchema(),
             ],
             'showAds' => SeoService::canShowAds(),
+            'adPlacement' => null,
         ]));
     }
 

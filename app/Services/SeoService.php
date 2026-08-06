@@ -244,8 +244,7 @@ final class SeoService
 
     public static function canShowAds(bool $noindex = false, int $resultCount = 1): bool
     {
-        return filter_var(env('ADSENSE_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)
-            && (string) env('ADSENSE_PUBLISHER_ID', '') !== ''
+        return AdSenseService::isEnabled()
             && ! $noindex
             && $resultCount > 0;
     }

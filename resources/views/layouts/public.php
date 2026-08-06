@@ -24,6 +24,7 @@ $twitterCard = 'summary_large_image';
 $structuredData = $structuredData ?? [];
 $googleVerification = trim((string) env('GOOGLE_SITE_VERIFICATION', ''));
 $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
+$adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPlacement ?? null);
 ?>
 <!doctype html>
 <html lang="en">
@@ -39,6 +40,9 @@ $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
     <?php endif; ?>
     <?php if ($bingVerification !== ''): ?>
         <meta name="msvalidate.01" content="<?= e($bingVerification) ?>">
+    <?php endif; ?>
+    <?php if ($adsense['client_id'] !== null): ?>
+        <meta name="google-adsense-account" content="<?= e($adsense['client_id']) ?>">
     <?php endif; ?>
     <meta name="application-name" content="<?= e($siteName) ?>">
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -89,8 +93,8 @@ $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
-    <?php if (! empty($showAds)): ?>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?= e((string) env('ADSENSE_PUBLISHER_ID')) ?>" crossorigin="anonymous"></script>
+    <?php if ($adsense['loader_enabled']): ?>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?= e($adsense['client_id']) ?>" crossorigin="anonymous"></script>
     <?php endif; ?>
 </head>
 <body class="public-shell">
@@ -124,7 +128,12 @@ $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
         <?= $content ?>
     </main>
 
-    <?php if (! empty($showAds)): ?>
+    <?php if ($adsense['slot_id'] !== null): ?>
+        <?php
+        $adClientId = $adsense['client_id'];
+        $adSlotId = $adsense['slot_id'];
+        $adPlacementName = $adsense['placement'];
+        ?>
         <?php require base_path('resources/views/partials/ad-slot.php'); ?>
     <?php endif; ?>
 

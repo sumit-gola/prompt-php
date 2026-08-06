@@ -42,6 +42,9 @@ DB_USERNAME=prompt_user
 DB_PASSWORD=...
 ADSENSE_ENABLED=false
 ADSENSE_PUBLISHER_ID=
+ADSENSE_HOME_SLOT=
+ADSENSE_LIBRARY_SLOT=
+ADSENSE_DETAIL_SLOT=
 AI_PROVIDER=none
 CONTACT_EMAIL=hello@mypromptart.com
 GOOGLE_SITE_VERIFICATION=
@@ -123,6 +126,32 @@ The app renders unique titles and descriptions, absolute canonical URLs, Open Gr
 - Prompt detail pages disclose the curator, publication date, explicitly recorded model tests, last editorial review, and source link when available. Admins maintain `tested_models` and `reviewed_at`; the site never infers testing from generation-provider metadata.
 - Ads are shown only when `ADSENSE_ENABLED=true`, `ADSENSE_PUBLISHER_ID` is configured, and the page is indexable with non-empty results.
 
+### Google AdSense onboarding
+
+AdSense uses two forms of the same account identifier. Configure the `pub-` value once; the application derives the `ca-pub-` client value used by the verification meta tag and JavaScript loader. For MyPromptArt production:
+
+```dotenv
+ADSENSE_ENABLED=true
+ADSENSE_PUBLISHER_ID=pub-9410767301492911
+ADSENSE_HOME_SLOT=
+ADSENSE_LIBRARY_SLOT=
+ADSENSE_DETAIL_SLOT=
+```
+
+Leave the three slot values empty until real numeric ad-unit IDs have been created in AdSense. With no manual slots, eligible content pages load only the site-level code used for connection verification and dashboard-controlled Auto ads. The `/ads.txt` route independently publishes `google.com, pub-9410767301492911, DIRECT, f08c47fec0942fa0` whenever the publisher ID is valid.
+
+Manual AdSense steps after deploying the code:
+
+1. Add `mypromptart.com` in AdSense and open **Connect your site to AdSense**.
+2. Select the AdSense code-snippet verification method.
+3. Confirm the live homepage contains `ca-pub-9410767301492911` and `/ads.txt` contains the exact `pub-9410767301492911` seller record.
+4. Confirm implementation in AdSense, click **Verify**, and then click **Request review**.
+5. Complete payment and account information personally.
+6. In **Privacy & messaging**, configure a Google-certified consent-management platform. Google's European regulations message should offer Consent, Do not consent, and Manage options.
+7. Enable Auto ads or add real manual ad-unit IDs only after approval.
+
+Do not click live ads or ask other people to click them. Advertising stays disabled on private, authentication, error, noindex, and empty-result pages. The Privacy Policy describes the intended Google advertising integration, but the site owner remains responsible for consent configuration and applicable legal requirements.
+
 ### Search Console setup
 
 1. Set `APP_URL=https://mypromptart.com`, `APP_ENV=production`, and `SESSION_SECURE=true` in the production `.env`.
@@ -139,9 +168,10 @@ Social platforms cache previews. After changing a prompt thumbnail or the defaul
 ```bash
 php tests/smoke.php
 php tests/seo.php
+php tests/adsense.php
 ```
 
-These tests do not require a database. They check expected public/admin routes, route ordering, CSRF, admin middleware, canonical helpers, metadata escaping, robots directives, structured data, and HTTP status handling.
+These tests do not require a database. They check expected public/admin routes, route ordering, CSRF, admin middleware, canonical helpers, metadata escaping, robots directives, structured data, HTTP status handling, AdSense identifier normalization, safe placements, and the exact ads.txt response.
 
 For read-only integration checks, start the local app and run:
 
