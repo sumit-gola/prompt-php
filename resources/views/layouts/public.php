@@ -81,7 +81,7 @@ $structuredData = $structuredData ?? [];
                     src="<?= asset('assets/img/my-prompt-art-logo.webp') ?>"
                     alt="MyPromptArt — Creative AI Prompts &amp; Ideas"
                     width="1200"
-                    height="408"
+                    height="337"
                 >
             </a>
             <form class="header-search" action="<?= url('/prompts') ?>" method="get" role="search">
