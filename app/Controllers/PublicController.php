@@ -1,0 +1,101 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Core\Request;
+use App\Core\Response;
+use App\Models\Prompt;
+use App\Services\SeoService;
+
+final class PublicController extends Controller
+{
+    public function home(Request $request): Response
+    {
+        $prompts = Prompt::latestCompleted(8);
+
+        return $this->view('public/home', [
+            'title' => 'Prompt Library',
+            'metaDescription' => 'Browse, search, and copy completed AI image prompts curated by editors.',
+            'canonical' => app_url('/'),
+            'prompts' => $prompts,
+            'categories' => Prompt::CATEGORIES,
+            'stats' => Prompt::stats(),
+            'showAds' => SeoService::canShowAds(false, count($prompts)),
+        ]);
+    }
+
+    public function about(Request $request): Response
+    {
+        return $this->page('About', 'public/about', 'About Prompt Library', 'A public archive of completed AI image prompts curated for browsing and copying.');
+    }
+
+    public function contact(Request $request): Response
+    {
+        return $this->page('Contact', 'public/contact', 'Contact Prompt Library', 'Contact information for Prompt Library editorial and support requests.');
+    }
+
+    public function privacy(Request $request): Response
+    {
+        return $this->page('Privacy policy', 'public/privacy', 'Privacy policy', 'How Prompt Library handles account, usage, and analytics data.');
+    }
+
+    public function terms(Request $request): Response
+    {
+        return $this->page('Terms', 'public/terms', 'Terms of use', 'Terms for browsing and copying prompts from Prompt Library.');
+    }
+
+    public function robots(Request $request): Response
+    {
+        $body = "User-agent: *\n";
+        $body .= "Disallow: /admin\n";
+        $body .= "Disallow: /login\n";
+        $body .= "Disallow: /register\n";
+        $body .= 'Sitemap: ' . app_url('/sitemap.xml') . "\n";
+
+        return Response::text($body);
+    }
+
+    public function ads(Request $request): Response
+    {
+        $publisherId = trim((string) env('ADSENSE_PUBLISHER_ID', ''));
+
+        if (! filter_var(env('ADSENSE_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN) || $publisherId === '') {
+            return Response::text('');
+        }
+
+        return Response::text('google.com, ' . $publisherId . ', DIRECT, f08c47fec0942fa0' . "\n");
+    }
+
+    public function sitemap(Request $request): Response
+    {
+        $pages = ['/', '/prompts', '/about', '/contact', '/privacy-policy', '/terms'];
+        $xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+
+        foreach ($pages as $page) {
+            $xml[] = '<url><loc>' . e(app_url($page)) . '</loc><changefreq>weekly</changefreq></url>';
+        }
+
+        foreach (Prompt::sitemapCompleted() as $prompt) {
+            $lastmod = date('Y-m-d', strtotime((string) ($prompt['updated_at'] ?? $prompt['generated_at'] ?? 'now')));
+            $xml[] = '<url><loc>' . e(app_url('/prompts/' . Prompt::publicIdentifier($prompt))) . '</loc><lastmod>' . e($lastmod) . '</lastmod><changefreq>weekly</changefreq></url>';
+        }
+
+        $xml[] = '</urlset>';
+
+        return Response::xml(implode("\n", $xml));
+    }
+
+    private function page(string $title, string $view, string $metaTitle, string $description): Response
+    {
+        return $this->view($view, [
+            'title' => $title,
+            'metaTitle' => $metaTitle,
+            'metaDescription' => $description,
+            'canonical' => app_url('/' . trim(strtolower(str_replace(' ', '-', $title)), '-')),
+            'showAds' => SeoService::canShowAds(),
+        ]);
+    }
+}
