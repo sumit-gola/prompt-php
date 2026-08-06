@@ -22,7 +22,7 @@ $user = \App\Core\Auth::user();
         <meta property="og:image" content="<?= e($ogImage) ?>">
     <?php endif; ?>
     <meta name="theme-color" content="#111615">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806n">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806s">
     <?php if (! empty($showAds)): ?>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?= e((string) env('ADSENSE_PUBLISHER_ID')) ?>" crossorigin="anonymous"></script>
     <?php endif; ?>

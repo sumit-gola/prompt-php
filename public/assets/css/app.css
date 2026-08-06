@@ -649,14 +649,41 @@ code {
     text-align: center;
 }
 
+.pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.pagination-summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: .86rem;
+}
+
+.pagination-summary strong {
+    color: var(--ink);
+}
+
 .pagination {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px;
-    margin-top: 14px;
+    justify-content: flex-end;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
 }
 
-.pagination a {
+.pagination-mobile {
+    display: none;
+}
+
+.pagination a,
+.pagination span,
+.pagination-mobile a,
+.pagination-mobile span {
     min-width: 34px;
     min-height: 34px;
     border: 1px solid var(--line);
@@ -665,12 +692,41 @@ code {
     display: grid;
     place-items: center;
     font-weight: 800;
+    padding: 0 10px;
 }
 
-.pagination a.active {
+.pagination a:hover,
+.pagination-mobile a:hover {
+    border-color: var(--brand);
+    background: #f0fdfa;
+    color: var(--brand-dark);
+}
+
+.pagination .active {
     border-color: var(--brand-dark);
     background: var(--brand-dark);
     color: #fff;
+}
+
+.pagination .disabled,
+.pagination .pagination-ellipsis,
+.pagination-mobile .disabled {
+    color: var(--faint);
+    cursor: default;
+}
+
+.pagination .disabled,
+.pagination-mobile .disabled {
+    background: var(--panel-soft);
+}
+
+.pagination .pagination-ellipsis {
+    border-color: transparent;
+    background: transparent;
+}
+
+.pagination-step {
+    min-width: 84px;
 }
 
 .text-page {
@@ -1098,6 +1154,46 @@ td small {
 
     .prompt-card p {
         max-height: 5.7em;
+    }
+
+    .pagination-wrap {
+        align-items: stretch;
+        flex-direction: column;
+        max-width: calc(100vw - 24px);
+        width: calc(100vw - 24px);
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        max-width: 100%;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .pagination a,
+    .pagination span {
+        min-width: 32px;
+        padding: 0 9px;
+    }
+
+    .pagination-step {
+        min-width: 70px;
+    }
+
+    .pagination-desktop {
+        display: none;
+    }
+
+    .pagination-mobile {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .pagination-mobile .pagination-step {
+        width: 100%;
     }
 
     .admin-shell {
