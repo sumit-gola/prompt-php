@@ -4,9 +4,20 @@ $description = $metaDescription ?? 'Browse and copy curated AI image prompts.';
 $canonicalUrl = $canonical ?? app_url($_SERVER['REQUEST_URI'] ?? '/');
 $robots = ! empty($noindex) ? 'noindex,follow' : 'index,follow';
 $keywords = $metaKeywords ?? 'AI prompts, image prompts, prompt library, prompt engineering, generative AI';
-$siteName = (string) env('APP_NAME', 'Prompt Library');
+$siteName = \App\Services\SeoService::siteName();
 $ogType = $ogType ?? 'website';
-$twitterCard = ! empty($ogImage) ? 'summary_large_image' : 'summary';
+$providedOgImage = ! empty($ogImage);
+$shareImage = $providedOgImage ? $ogImage : \App\Services\SeoService::defaultShareImageUrl();
+$shareImageAlt = $ogImageAlt ?? \App\Services\SeoService::defaultShareImageAlt();
+$shareImagePath = (string) parse_url((string) $shareImage, PHP_URL_PATH);
+$shareImageType = $ogImageType ?? match (true) {
+    preg_match('/\.jpe?g$/i', $shareImagePath) === 1 => 'image/jpeg',
+    preg_match('/\.webp$/i', $shareImagePath) === 1 => 'image/webp',
+    default => 'image/png',
+};
+$shareImageWidth = $ogImageWidth ?? ($providedOgImage ? null : 1200);
+$shareImageHeight = $ogImageHeight ?? ($providedOgImage ? null : 630);
+$twitterCard = 'summary_large_image';
 $structuredData = $structuredData ?? [];
 $user = \App\Core\Auth::user();
 ?>
@@ -24,6 +35,9 @@ $user = \App\Core\Auth::user();
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no">
     <meta name="color-scheme" content="light">
+    <meta itemprop="name" content="<?= e($pageTitle) ?>">
+    <meta itemprop="description" content="<?= e($description) ?>">
+    <meta itemprop="image" content="<?= e($shareImage) ?>">
     <link rel="canonical" href="<?= e($canonicalUrl) ?>">
     <meta property="og:site_name" content="<?= e($siteName) ?>">
     <meta property="og:locale" content="en_US">
@@ -31,13 +45,19 @@ $user = \App\Core\Auth::user();
     <meta property="og:description" content="<?= e($description) ?>">
     <meta property="og:type" content="<?= e($ogType) ?>">
     <meta property="og:url" content="<?= e($canonicalUrl) ?>">
-    <?php if (! empty($ogImage)): ?>
-        <meta property="og:image" content="<?= e($ogImage) ?>">
-        <meta name="twitter:image" content="<?= e($ogImage) ?>">
+    <meta property="og:image" content="<?= e($shareImage) ?>">
+    <meta property="og:image:secure_url" content="<?= e($shareImage) ?>">
+    <meta property="og:image:type" content="<?= e($shareImageType) ?>">
+    <?php if ($shareImageWidth !== null && $shareImageHeight !== null): ?>
+        <meta property="og:image:width" content="<?= (int) $shareImageWidth ?>">
+        <meta property="og:image:height" content="<?= (int) $shareImageHeight ?>">
     <?php endif; ?>
+    <meta property="og:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="twitter:card" content="<?= e($twitterCard) ?>">
     <meta name="twitter:title" content="<?= e($pageTitle) ?>">
     <meta name="twitter:description" content="<?= e($description) ?>">
+    <meta name="twitter:image" content="<?= e($shareImage) ?>">
+    <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="#f6f9fc">
     <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806light">
     <?php foreach ($structuredData as $schema): ?>

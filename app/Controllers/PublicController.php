@@ -17,11 +17,12 @@ final class PublicController extends Controller
         $prompts = Prompt::latestCompleted(8);
 
         return $this->view('public/home', [
-            'title' => 'Prompt Library',
-            'metaTitle' => 'Prompt Library - Search and Copy AI Image Prompts',
-            'metaDescription' => 'Browse, search, and copy completed AI image prompts curated by editors.',
-            'metaKeywords' => 'AI image prompts, prompt library, copy prompts, generative AI prompts, image generation prompts',
+            'title' => 'MyPromptArt',
+            'metaTitle' => 'MyPromptArt - AI Prompt Library for Creators',
+            'metaDescription' => 'Search, open, and copy ready-to-use AI image prompts for portraits, fashion, products, lifestyle, and art.',
+            'metaKeywords' => 'MyPromptArt, AI image prompts, prompt library, copy prompts, generative AI prompts, image generation prompts',
             'canonical' => app_url('/'),
+            'ogImageAlt' => SeoService::defaultShareImageAlt(),
             'structuredData' => [
                 SeoService::websiteSchema(),
                 SeoService::organizationSchema(),

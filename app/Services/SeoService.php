@@ -10,7 +10,7 @@ final class SeoService
 {
     public static function siteName(): string
     {
-        return (string) env('APP_NAME', 'Prompt Library');
+        return (string) env('APP_NAME', 'MyPromptArt');
     }
 
     public static function promptUrl(array $prompt): string
@@ -31,6 +31,16 @@ final class SeoService
         }
 
         return app_url(asset($path));
+    }
+
+    public static function defaultShareImageUrl(): string
+    {
+        return app_url('/assets/img/share-card.png?v=20260806meta');
+    }
+
+    public static function defaultShareImageAlt(): string
+    {
+        return 'MyPromptArt AI prompt library preview';
     }
 
     public static function description(?string $text, int $limit = 155): string
