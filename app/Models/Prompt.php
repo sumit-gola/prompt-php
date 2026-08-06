@@ -407,8 +407,11 @@ final class Prompt
         $params = [];
 
         if (! empty($filters['q'])) {
-            $where[] = '(title LIKE :q OR prompt LIKE :q OR category LIKE :q)';
-            $params['q'] = '%' . trim((string) $filters['q']) . '%';
+            $term = '%' . trim((string) $filters['q']) . '%';
+            $where[] = '(title LIKE :q_title OR prompt LIKE :q_prompt OR category LIKE :q_category)';
+            $params['q_title'] = $term;
+            $params['q_prompt'] = $term;
+            $params['q_category'] = $term;
         }
 
         if (! empty($filters['category']) && in_array((string) $filters['category'], self::CATEGORIES, true)) {
@@ -425,8 +428,13 @@ final class Prompt
         $params = [];
 
         if (! empty($filters['q'])) {
-            $where[] = '(title LIKE :q OR prompt LIKE :q OR source_site LIKE :q OR source_url LIKE :q OR source_slug LIKE :q)';
-            $params['q'] = '%' . trim((string) $filters['q']) . '%';
+            $term = '%' . trim((string) $filters['q']) . '%';
+            $where[] = '(title LIKE :q_title OR prompt LIKE :q_prompt OR source_site LIKE :q_source_site OR source_url LIKE :q_source_url OR source_slug LIKE :q_source_slug)';
+            $params['q_title'] = $term;
+            $params['q_prompt'] = $term;
+            $params['q_source_site'] = $term;
+            $params['q_source_url'] = $term;
+            $params['q_source_slug'] = $term;
         }
 
         if (! empty($filters['status']) && in_array((string) $filters['status'], self::STATUSES, true)) {
@@ -445,8 +453,11 @@ final class Prompt
         }
 
         if (! empty($filters['source'])) {
-            $where[] = '(source_site LIKE :source OR source_url LIKE :source OR source_slug LIKE :source)';
-            $params['source'] = '%' . trim((string) $filters['source']) . '%';
+            $source = '%' . trim((string) $filters['source']) . '%';
+            $where[] = '(source_site LIKE :source_site OR source_url LIKE :source_url OR source_slug LIKE :source_slug)';
+            $params['source_site'] = $source;
+            $params['source_url'] = $source;
+            $params['source_slug'] = $source;
         }
 
         if (! empty($filters['date_from'])) {

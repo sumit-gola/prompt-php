@@ -24,6 +24,20 @@ $assert = static function (bool $condition, string $message) use (&$failures): v
     }
 };
 
+$assertSearchPlaceholders = static function (string $label, array $whereResult) use ($assert): void {
+    [$where, $params] = $whereResult;
+    preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $where, $matches);
+    $placeholders = $matches[1];
+
+    foreach (array_count_values($placeholders) as $placeholder => $count) {
+        $assert($count === 1, "{$label} reuses named placeholder :{$placeholder}");
+    }
+
+    foreach ($placeholders as $placeholder) {
+        $assert(array_key_exists($placeholder, $params), "{$label} missing bound value for :{$placeholder}");
+    }
+};
+
 foreach ([
     ['GET', '/'],
     ['GET', '/prompts'],
@@ -65,6 +79,26 @@ foreach ($routes as $route) {
 $copyRoute = $findRoute('POST', '/prompts/{id}/copy');
 $assert($copyRoute !== null && ! in_array('admin', $copyRoute['middleware'], true), 'Copy endpoint should be public but CSRF protected.');
 
+$promptReflection = new ReflectionClass(\App\Models\Prompt::class);
+$publicWhere = $promptReflection->getMethod('publicWhere');
+$adminWhere = $promptReflection->getMethod('adminWhere');
+$publicWhere->setAccessible(true);
+$adminWhere->setAccessible(true);
+
+$assertSearchPlaceholders('Public search', $publicWhere->invoke(null, [
+    'q' => 'man walking',
+    'category' => 'portrait',
+]));
+$assertSearchPlaceholders('Admin search', $adminWhere->invoke(null, [
+    'q' => 'man walking',
+    'status' => 'completed',
+    'category' => 'portrait',
+    'generation_mode' => 'imported',
+    'source' => 'example',
+    'date_from' => '2026-08-01',
+    'date_to' => '2026-08-06',
+]));
+
 if ($failures !== []) {
     foreach ($failures as $failure) {
         fwrite(STDERR, "FAIL: {$failure}\n");
@@ -73,4 +107,3 @@ if ($failures !== []) {
 }
 
 echo "Smoke checks passed: " . count($routes) . " routes registered with expected permissions.\n";
-

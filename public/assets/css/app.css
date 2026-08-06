@@ -207,9 +207,32 @@ code {
 }
 
 .header-search {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
+}
+
+.header-search::before {
+    content: "AI";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    border: 1px solid rgba(34, 211, 238, .26);
+    border-radius: 5px;
+    background: rgba(34, 211, 238, .08);
+    color: var(--cyan);
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    font-weight: 950;
+    line-height: 1;
+    padding: 4px 6px;
+}
+
+.header-search input {
+    padding-left: 48px;
 }
 
 .site-nav {
@@ -417,6 +440,27 @@ code {
     box-shadow: var(--shadow);
 }
 
+.search-panel::after,
+.filter-panel::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        linear-gradient(90deg, transparent 0 18px, rgba(34, 211, 238, .12) 18px 19px, transparent 19px 100%),
+        linear-gradient(180deg, transparent 0 18px, rgba(34, 211, 238, .08) 18px 19px, transparent 19px 100%);
+    background-size: 38px 38px;
+    opacity: .28;
+}
+
+.search-panel > *,
+.filter-panel > *,
+.admin-filters > * {
+    position: relative;
+    z-index: 1;
+}
+
 .search-panel::before,
 .filter-panel::before,
 .admin-panel::before,
@@ -441,9 +485,27 @@ code {
 }
 
 .search-row {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;
+    z-index: 1;
+}
+
+.search-row::before {
+    content: ">";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    color: var(--lime);
+    font-family: var(--font-mono);
+    font-weight: 950;
+}
+
+.search-row input {
+    padding-left: 32px;
 }
 
 .filter-panel {
@@ -502,6 +564,22 @@ code {
     transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
+.prompt-card::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    right: 8px;
+    width: 3px;
+    border-radius: 999px;
+    background:
+        linear-gradient(var(--cyan), var(--cyan)) 0 0 / 100% 12% no-repeat,
+        linear-gradient(var(--lime), var(--lime)) 0 38% / 100% 10% no-repeat,
+        linear-gradient(var(--violet), var(--violet)) 0 76% / 100% 14% no-repeat;
+    opacity: .36;
+}
+
 .prompt-card:hover {
     border-color: rgba(34, 211, 238, .38);
     box-shadow: var(--shadow), var(--glow);
@@ -521,6 +599,19 @@ code {
         linear-gradient(135deg, rgba(20, 184, 166, .18), rgba(139, 92, 246, .12)),
         rgba(5, 12, 24, .94);
     background-size: 18px 18px, 18px 18px, auto, auto;
+}
+
+.prompt-thumb::before,
+.prompt-placeholder::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 5px, rgba(191, 250, 255, .075) 5px 6px),
+        linear-gradient(90deg, rgba(34, 211, 238, .16), transparent 28%, transparent 72%, rgba(139, 92, 246, .14));
+    opacity: .78;
 }
 
 .prompt-thumb::after,
@@ -544,6 +635,8 @@ code {
 .prompt-thumb span,
 .prompt-placeholder span,
 .prompt-placeholder {
+    position: relative;
+    z-index: 2;
     color: #bffaff;
     font-family: var(--font-mono);
     font-size: 1.05rem;
@@ -552,11 +645,23 @@ code {
 }
 
 .prompt-card-body {
+    position: relative;
     min-width: 0;
     padding: 12px;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: 8px;
+}
+
+.prompt-card-body::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(34, 211, 238, .44), transparent 42%, rgba(163, 230, 53, .36));
+    opacity: .6;
 }
 
 .prompt-card-top {
@@ -615,6 +720,15 @@ code {
     justify-content: space-between;
 }
 
+.copy-button::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 14px rgba(163, 230, 53, .8);
+}
+
 .prompt-detail {
     padding: 20px 18px;
     display: grid;
@@ -656,6 +770,8 @@ code {
 }
 
 .detail-copy {
+    position: relative;
+    overflow: hidden;
     min-width: 0;
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -664,6 +780,15 @@ code {
     display: grid;
     gap: 14px;
     padding: 18px;
+}
+
+.detail-copy::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(34, 211, 238, .9), rgba(163, 230, 53, .7), rgba(139, 92, 246, .7));
 }
 
 .detail-copy h1 {
@@ -680,10 +805,14 @@ code {
 }
 
 .prompt-text {
+    position: relative;
     overflow-x: auto;
     border: 1px solid rgba(34, 211, 238, .2);
     border-radius: var(--radius);
-    background: rgba(3, 8, 18, .74);
+    background:
+        linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+        rgba(3, 8, 18, .78);
+    background-size: 100% 1.65em;
     color: #dcecff;
     font-family: var(--font-mono);
     font-size: .92rem;
@@ -976,9 +1105,20 @@ code {
 }
 
 .stat-card {
+    position: relative;
+    overflow: hidden;
     padding: 13px;
     display: grid;
     gap: 5px;
+}
+
+.stat-card::after {
+    content: "";
+    position: absolute;
+    inset: auto 12px 10px;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(34, 211, 238, .7), rgba(163, 230, 53, .42), transparent);
 }
 
 .stat-card span {
@@ -1003,6 +1143,7 @@ code {
 
 .admin-filters {
     position: relative;
+    overflow: hidden;
     margin-bottom: 14px;
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -1013,6 +1154,14 @@ code {
     gap: 8px;
     align-items: end;
     padding: 12px;
+}
+
+.admin-filters::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, .78), transparent);
 }
 
 .bulk-bar {
@@ -1031,6 +1180,7 @@ code {
     overflow-x: auto;
     border: 1px solid rgba(148, 163, 184, .16);
     border-radius: var(--radius);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
 }
 
 table {
@@ -1204,6 +1354,11 @@ td small {
     .header-search {
         grid-column: 1 / -1;
         grid-template-columns: 1fr;
+    }
+
+    .header-search::before,
+    .search-row::before {
+        top: 19px;
     }
 
     .site-nav,
