@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title><?= e($pageTitle) ?> - Prompt Library</title>
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806s">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806tech">
 </head>
 <body class="auth-shell">
     <main class="auth-panel">
