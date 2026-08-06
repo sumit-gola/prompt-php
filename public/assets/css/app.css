@@ -910,6 +910,37 @@ code {
     object-fit: cover;
 }
 
+.prompt-image-figure {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.prompt-image-figure figcaption {
+    color: var(--muted);
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+.prompt-full-image-link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+}
+
+.prompt-full-image-link:focus-visible {
+    outline: 3px solid var(--cyan);
+    outline-offset: -3px;
+}
+
+.prompt-full-image-link picture,
+.prompt-full-image-link img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 .detail-copy {
     position: relative;
     overflow: hidden;

@@ -168,7 +168,7 @@ final class Prompt
     public static function sitemapCompleted(int $limit = 45000, int $offset = 0): array
     {
         $stmt = Database::pdo()->prepare(
-            "SELECT id, title, category, source_slug, thumbnail_path, updated_at, generated_at
+            "SELECT id, title, category, source_slug, thumbnail_path, reference_image_path, updated_at, generated_at
              FROM prompts
              WHERE status = 'completed' AND prompt IS NOT NULL AND prompt <> ''
              ORDER BY updated_at DESC, id DESC

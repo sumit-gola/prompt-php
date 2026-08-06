@@ -85,7 +85,7 @@ $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="#f6f9fc">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807seo1">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807image1">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>

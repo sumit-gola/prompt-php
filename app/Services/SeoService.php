@@ -242,10 +242,10 @@ final class SeoService
                 'url' => self::promptUrl($prompt),
                 'name' => (string) $prompt['title'],
             ];
-            $image = self::assetUrl($prompt['thumbnail_path'] ?? null);
+            $image = PromptImageService::metadata($prompt, true);
 
             if ($image !== null) {
-                $item['image'] = $image;
+                $item['image'] = $image['url'];
             }
 
             $items[] = $item;
@@ -307,17 +307,14 @@ final class SeoService
             $schema['dateModified'] = $modified;
         }
 
-        $image = self::imageMetadata(
-            $prompt['thumbnail_path'] ?? null,
-            (string) $prompt['title'] . ' AI image prompt preview'
-        );
+        $image = PromptImageService::metadata($prompt, true);
 
         if ($image !== null) {
             $imageObject = [
                 '@type' => 'ImageObject',
                 'url' => $image['url'],
                 'contentUrl' => $image['url'],
-                'caption' => $image['alt'],
+                'caption' => $image['caption'],
             ];
 
             if ($image['width'] !== null && $image['height'] !== null) {

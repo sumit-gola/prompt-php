@@ -9,6 +9,7 @@ use App\Core\RateLimiter;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Prompt;
+use App\Services\PromptImageService;
 use App\Services\SeoService;
 
 final class PromptController extends Controller
@@ -49,10 +50,7 @@ final class PromptController extends Controller
         $description = SeoService::description((string) $prompt['prompt']);
         $categoryName = SeoService::categoryName((string) $prompt['category']);
         $categoryUrl = SeoService::categoryUrl((string) $prompt['category']);
-        $image = SeoService::imageMetadata(
-            $prompt['thumbnail_path'] ?? null,
-            (string) $prompt['title'] . ' AI image prompt preview'
-        );
+        $image = PromptImageService::metadata($prompt, true);
         $publishedAt = SeoService::isoDate($prompt['generated_at'] ?? $prompt['created_at'] ?? null);
         $modifiedAt = SeoService::isoDate($prompt['updated_at'] ?? null);
         $breadcrumbs = [
@@ -81,6 +79,7 @@ final class PromptController extends Controller
             ],
             'showAds' => SeoService::canShowAds(),
             'prompt' => $prompt,
+            'promptImage' => $image,
             'related' => $related,
             'styleNotes' => Prompt::decodeStyleNotes($prompt['style_notes'] ?? null),
             'breadcrumbs' => $breadcrumbs,

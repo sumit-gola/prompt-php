@@ -1,20 +1,31 @@
+<?php $detailImage = $promptImage ?? \App\Services\PromptImageService::metadata($prompt, true); ?>
 <article class="prompt-detail">
     <aside class="detail-media">
-        <div class="prompt-placeholder">
-            <span><?= e(strtoupper(substr((string) $prompt['category'], 0, 2))) ?></span>
-            <?php if (! empty($prompt['thumbnail_path'])): ?>
-                <img
-                    src="<?= e(asset((string) $prompt['thumbnail_path'])) ?>"
-                    alt="<?= e((string) $prompt['title'] . ' AI image prompt preview') ?>"
-                    width="640"
-                    height="420"
-                    loading="eager"
-                    fetchpriority="high"
-                    decoding="async"
-                    onerror="this.remove()"
-                >
+        <figure class="prompt-image-figure">
+            <div class="prompt-placeholder">
+                <span><?= e(strtoupper(substr((string) $prompt['category'], 0, 2))) ?></span>
+                <?php if ($detailImage !== null): ?>
+                    <a
+                        class="prompt-full-image-link"
+                        href="<?= e($detailImage['full_src']) ?>"
+                        aria-label="Open full-size image: <?= e($detailImage['alt']) ?>"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <?php
+                        $image = $detailImage;
+                        $imageLoading = 'eager';
+                        $imageFetchPriority = 'high';
+                        $imageSizes = '(max-width: 900px) 100vw, 320px';
+                        ?>
+                        <?php require base_path('resources/views/partials/responsive-image.php'); ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+            <?php if ($detailImage !== null): ?>
+                <figcaption><?= e($detailImage['caption']) ?> Select the image to open the full-size preview.</figcaption>
             <?php endif; ?>
-        </div>
+        </figure>
         <div class="detail-counts">
             <span><?= e(ucfirst((string) $prompt['category'])) ?></span>
             <span><?= (int) $prompt['copy_count'] ?> copies</span>

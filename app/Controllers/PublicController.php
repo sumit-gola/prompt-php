@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Prompt;
+use App\Services\PromptImageService;
 use App\Services\SeoService;
 
 final class PublicController extends Controller
@@ -225,10 +226,11 @@ final class PublicController extends Controller
 
         foreach (Prompt::sitemapCompleted($limit, $offset) as $prompt) {
             $timestamp = strtotime((string) ($prompt['updated_at'] ?? $prompt['generated_at'] ?? ''));
+            $image = PromptImageService::metadata($prompt, true);
             $entry = [
                 'loc' => SeoService::promptUrl($prompt),
                 'lastmod' => $timestamp ? date('Y-m-d', $timestamp) : null,
-                'image' => SeoService::assetUrl($prompt['thumbnail_path'] ?? null),
+                'image' => $image['url'] ?? null,
             ];
             $entries[] = $entry;
         }

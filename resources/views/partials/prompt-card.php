@@ -2,23 +2,21 @@
 $identifier = \App\Models\Prompt::publicIdentifier($prompt);
 $fullTitle = (string) $prompt['title'];
 $cardTitle = str_limit_words($fullTitle, 44);
-$cardImageLoading = $cardImageLoading ?? 'lazy';
-$cardImageFetchPriority = $cardImageFetchPriority ?? 'auto';
+$cardImage = \App\Services\PromptImageService::metadata($prompt, true);
+$cardImageLoading = 'lazy';
+$cardImageFetchPriority = 'auto';
 ?>
 <article class="prompt-card">
     <a class="prompt-thumb" href="<?= url('/prompts/' . $identifier) ?>">
         <span><?= e(strtoupper(substr((string) $prompt['category'], 0, 2))) ?></span>
-        <?php if (! empty($prompt['thumbnail_path'])): ?>
-            <img
-                src="<?= e(asset((string) $prompt['thumbnail_path'])) ?>"
-                alt="<?= e($fullTitle . ' AI image prompt preview') ?>"
-                width="640"
-                height="420"
-                loading="<?= e($cardImageLoading) ?>"
-                fetchpriority="<?= e($cardImageFetchPriority) ?>"
-                decoding="async"
-                onerror="this.remove()"
-            >
+        <?php if ($cardImage !== null): ?>
+            <?php
+            $image = $cardImage;
+            $imageLoading = $cardImageLoading;
+            $imageFetchPriority = $cardImageFetchPriority;
+            $imageSizes = '(max-width: 680px) 100vw, (max-width: 1180px) 33vw, 25vw';
+            ?>
+            <?php require base_path('resources/views/partials/responsive-image.php'); ?>
         <?php endif; ?>
     </a>
     <div class="prompt-card-body">
