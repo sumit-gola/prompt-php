@@ -2,8 +2,9 @@
 $pageTitle = $metaTitle ?? $title ?? 'Prompt Library';
 $description = $metaDescription ?? 'Browse and copy curated AI image prompts.';
 $canonicalUrl = $canonical ?? app_url($_SERVER['REQUEST_URI'] ?? '/');
-$robots = ! empty($noindex) ? 'noindex,follow' : 'index,follow';
-$keywords = $metaKeywords ?? 'AI prompts, image prompts, prompt library, prompt engineering, generative AI';
+$robotsDirective = ! empty($noindex)
+    ? (! empty($nofollow) ? 'noindex,nofollow' : 'noindex,follow')
+    : 'index,follow';
 $siteName = \App\Services\SeoService::siteName();
 $ogType = $ogType ?? 'website';
 $providedOgImage = ! empty($ogImage);
@@ -21,6 +22,8 @@ $shareImageFile = public_path(ltrim($shareImagePath, '/'));
 $ogUpdatedTime = $ogUpdatedTime ?? (is_file($shareImageFile) ? date(DATE_ATOM, (int) filemtime($shareImageFile)) : date(DATE_ATOM));
 $twitterCard = 'summary_large_image';
 $structuredData = $structuredData ?? [];
+$googleVerification = trim((string) env('GOOGLE_SITE_VERIFICATION', ''));
+$bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
 ?>
 <!doctype html>
 <html lang="en">
@@ -29,9 +32,14 @@ $structuredData = $structuredData ?? [];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($description) ?>">
-    <meta name="keywords" content="<?= e($keywords) ?>">
-    <meta name="robots" content="<?= e($robots) ?>">
-    <meta name="googlebot" content="<?= e($robots) ?>,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+    <meta name="robots" content="<?= e($robotsDirective) ?>">
+    <meta name="googlebot" content="<?= e($robotsDirective) ?>,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+    <?php if ($googleVerification !== ''): ?>
+        <meta name="google-site-verification" content="<?= e($googleVerification) ?>">
+    <?php endif; ?>
+    <?php if ($bingVerification !== ''): ?>
+        <meta name="msvalidate.01" content="<?= e($bingVerification) ?>">
+    <?php endif; ?>
     <meta name="application-name" content="<?= e($siteName) ?>">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="format-detection" content="telephone=no">
@@ -42,6 +50,12 @@ $structuredData = $structuredData ?? [];
     <link rel="canonical" href="<?= e($canonicalUrl) ?>">
     <link rel="icon" href="<?= asset('favicon.png') ?>" type="image/png" sizes="512x512">
     <link rel="apple-touch-icon" href="<?= asset('apple-touch-icon.png') ?>" sizes="180x180">
+    <?php if (! empty($prevUrl)): ?>
+        <link rel="prev" href="<?= e($prevUrl) ?>">
+    <?php endif; ?>
+    <?php if (! empty($nextUrl)): ?>
+        <link rel="next" href="<?= e($nextUrl) ?>">
+    <?php endif; ?>
     <meta property="og:site_name" content="<?= e($siteName) ?>">
     <meta property="og:locale" content="en_US">
     <meta property="og:title" content="<?= e($pageTitle) ?>">
@@ -58,6 +72,12 @@ $structuredData = $structuredData ?? [];
     <?php endif; ?>
     <meta property="og:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta property="og:updated_time" content="<?= e($ogUpdatedTime) ?>">
+    <?php if ($ogType === 'article' && ! empty($ogPublishedTime)): ?>
+        <meta property="article:published_time" content="<?= e($ogPublishedTime) ?>">
+    <?php endif; ?>
+    <?php if ($ogType === 'article' && ! empty($ogUpdatedTime)): ?>
+        <meta property="article:modified_time" content="<?= e($ogUpdatedTime) ?>">
+    <?php endif; ?>
     <meta name="twitter:card" content="<?= e($twitterCard) ?>">
     <meta name="twitter:title" content="<?= e($pageTitle) ?>">
     <meta name="twitter:description" content="<?= e($description) ?>">
@@ -74,6 +94,7 @@ $structuredData = $structuredData ?? [];
     <?php endif; ?>
 </head>
 <body class="public-shell">
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <div class="site-header-inner">
             <a class="brand header-brand-logo" href="<?= url('/') ?>" aria-label="<?= e($siteName) ?> home">
@@ -99,7 +120,7 @@ $structuredData = $structuredData ?? [];
 
     <?php require base_path('resources/views/partials/flash.php'); ?>
 
-    <main>
+    <main id="main-content">
         <?= $content ?>
     </main>
 
@@ -109,12 +130,13 @@ $structuredData = $structuredData ?? [];
 
     <footer class="site-footer">
         <div>
-            <strong>Prompt Library</strong>
+            <strong>MyPromptArt</strong>
             <p>Completed prompts. Search, open, copy.</p>
         </div>
         <nav aria-label="Footer navigation">
             <a href="<?= url('/privacy-policy') ?>">Privacy</a>
             <a href="<?= url('/terms') ?>">Terms</a>
+            <a href="<?= url('/sitemap.xml') ?>">Sitemap</a>
             <a href="<?= url('/robots.txt') ?>">Robots</a>
         </nav>
     </footer>

@@ -3,7 +3,16 @@
         <div class="prompt-placeholder">
             <span><?= e(strtoupper(substr((string) $prompt['category'], 0, 2))) ?></span>
             <?php if (! empty($prompt['thumbnail_path'])): ?>
-                <img src="<?= asset($prompt['thumbnail_path']) ?>" alt="" onerror="this.remove()">
+                <img
+                    src="<?= e(asset((string) $prompt['thumbnail_path'])) ?>"
+                    alt="<?= e((string) $prompt['title'] . ' AI image prompt preview') ?>"
+                    width="640"
+                    height="420"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                    onerror="this.remove()"
+                >
             <?php endif; ?>
         </div>
         <div class="detail-counts">
@@ -12,15 +21,37 @@
         </div>
     </aside>
     <section class="detail-copy">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+                <?php foreach ($breadcrumbs as $index => $item): ?>
+                    <li>
+                        <?php if ($index < count($breadcrumbs) - 1): ?>
+                            <a href="<?= e($item['url']) ?>"><?= e($item['name']) ?></a>
+                        <?php else: ?>
+                            <span aria-current="page"><?= e($item['name']) ?></span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        </nav>
         <div class="detail-toolbar">
-            <a href="<?= url('/prompts') ?>">Library</a>
-            <span><?= e(ucfirst((string) $prompt['category'])) ?></span>
+            <a href="<?= url($categoryPath) ?>"><?= e($categoryName) ?></a>
             <span><?= (int) $prompt['copy_count'] ?> copied</span>
         </div>
         <div>
             <p class="eyebrow">Prompt file</p>
             <h1><?= e($prompt['title']) ?></h1>
         </div>
+        <?php if ($publishedAt !== null || $modifiedAt !== null): ?>
+            <div class="publication-meta">
+                <?php if ($publishedAt !== null): ?>
+                    <span>Published <time datetime="<?= e($publishedAt) ?>"><?= e(date('M j, Y', strtotime($publishedAt))) ?></time></span>
+                <?php endif; ?>
+                <?php if ($modifiedAt !== null): ?>
+                    <span>Updated <time datetime="<?= e($modifiedAt) ?>"><?= e(date('M j, Y', strtotime($modifiedAt))) ?></time></span>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
         <div class="prompt-text"><?= nl2br(e((string) $prompt['prompt'])) ?></div>
         <button class="button copy-button" data-copy-url="<?= url('/prompts/' . $prompt['id'] . '/copy') ?>" data-csrf="<?= e(csrf_token()) ?>" type="button">Copy prompt</button>
 
@@ -53,6 +84,10 @@
         </div>
         <div class="prompt-grid compact-grid">
             <?php foreach ($related as $prompt): ?>
+                <?php
+                $cardImageLoading = 'lazy';
+                $cardImageFetchPriority = 'auto';
+                ?>
                 <?php require base_path('resources/views/partials/prompt-card.php'); ?>
             <?php endforeach; ?>
         </div>

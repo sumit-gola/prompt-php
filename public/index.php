@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Core\Request;
 use App\Core\Response;
+use App\Services\SeoService;
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $publicRoot = realpath(__DIR__) ?: __DIR__;
@@ -27,6 +28,21 @@ header_remove('X-Powered-By');
 $request = Request::capture();
 
 try {
+    if (strtolower((string) env('APP_ENV', 'local')) === 'production') {
+        $appUrl = parse_url((string) env('APP_URL', ''));
+
+        if (($appUrl['scheme'] ?? null) !== 'https' || empty($appUrl['host'])) {
+            throw new RuntimeException('Production APP_URL must be an absolute HTTPS URL.');
+        }
+
+        $canonicalRedirect = SeoService::canonicalRedirectUrl($request);
+
+        if ($canonicalRedirect !== null) {
+            Response::redirect($canonicalRedirect, 301)->send($request);
+            return;
+        }
+    }
+
     $router->dispatch($request)->send($request);
 } catch (Throwable $exception) {
     error_log((string) $exception);
@@ -36,5 +52,5 @@ try {
         ? '<pre>' . e((string) $exception) . '</pre>'
         : '<h1>Something went wrong</h1><p>The application could not complete this request.</p>';
 
-    Response::html($message, 500)->send($request);
+    Response::html($message, 500, ['X-Robots-Tag' => 'noindex, nofollow'])->send($request);
 }

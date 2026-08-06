@@ -12,58 +12,108 @@ use App\Services\SeoService;
 
 final class PublicController extends Controller
 {
+    private const SITEMAP_CHUNK_SIZE = 45000;
+
+    private const PUBLIC_PAGES = [
+        '/',
+        '/prompts',
+        '/about',
+        '/contact',
+        '/privacy-policy',
+        '/terms',
+    ];
+
     public function home(Request $request): Response
     {
         $prompts = Prompt::latestCompleted(8);
+        $stats = Prompt::stats();
+        $categoryCounts = Prompt::publicCategoryCounts();
+        $categories = array_keys(array_filter($categoryCounts, static fn (int $count): bool => $count > 0));
+        $publicCompletedCount = array_sum($categoryCounts);
+        $description = 'Browse curated AI image prompts for portraits, products, fashion, lifestyle, and art. Search, open, and copy completed prompts.';
 
         return $this->view('public/home', [
             'title' => 'MyPromptArt',
-            'metaTitle' => 'MyPromptArt - AI Photo Editing Prompt Library',
-            'metaDescription' => 'Browse premium AI photo editing prompts for portraits, products, fashion, lifestyle, and art. Search, open, and copy prompts ready for creators.',
-            'metaKeywords' => 'MyPromptArt, AI photo editing prompts, AI image prompts, prompt library, copy prompts, generative AI prompts, image generation prompts',
+            'metaTitle' => 'MyPromptArt | AI Image Prompt Library',
+            'metaDescription' => $description,
             'canonical' => app_url('/'),
             'ogImageAlt' => SeoService::defaultShareImageAlt(),
             'structuredData' => [
                 SeoService::websiteSchema(),
                 SeoService::organizationSchema(),
-                SeoService::collectionSchema('Latest AI image prompts', 'Recently published completed AI image prompts ready to open and copy.', count($prompts)),
+                SeoService::collectionSchema(
+                    'Latest AI image prompts',
+                    'Recently published completed AI image prompts ready to open and copy.',
+                    app_url('/'),
+                    $publicCompletedCount,
+                    $prompts
+                ),
             ],
             'prompts' => $prompts,
-            'categories' => Prompt::CATEGORIES,
-            'stats' => Prompt::stats(),
+            'categories' => $categories,
+            'categoryCounts' => $categoryCounts,
+            'publicCompletedCount' => $publicCompletedCount,
+            'stats' => $stats,
             'showAds' => SeoService::canShowAds(false, count($prompts)),
         ]);
     }
 
     public function about(Request $request): Response
     {
-        return $this->page('About', 'public/about', 'About Prompt Library', 'A public archive of completed AI image prompts curated for browsing and copying.');
+        return $this->page(
+            'About MyPromptArt',
+            'public/about',
+            '/about',
+            'About MyPromptArt | Curated AI Image Prompts',
+            'Learn how MyPromptArt curates completed AI image prompts for public browsing, searching, and copying.'
+        );
     }
 
     public function contact(Request $request): Response
     {
-        return $this->page('Contact', 'public/contact', 'Contact Prompt Library', 'Contact information for Prompt Library editorial and support requests.');
+        return $this->page(
+            'Contact MyPromptArt',
+            'public/contact',
+            '/contact',
+            'Contact MyPromptArt | Editorial and Support',
+            'Contact MyPromptArt about editorial questions, prompt sources, licensing, privacy, or account support.',
+            ['contactEmail' => trim((string) env('CONTACT_EMAIL', ''))]
+        );
     }
 
     public function privacy(Request $request): Response
     {
-        return $this->page('Privacy policy', 'public/privacy', 'Privacy policy', 'How Prompt Library handles account, usage, and analytics data.');
+        return $this->page(
+            'Privacy policy',
+            'public/privacy',
+            '/privacy-policy',
+            'Privacy Policy | MyPromptArt',
+            'Read how MyPromptArt handles account information, sessions, copy-rate protection, analytics, and advertising data.'
+        );
     }
 
     public function terms(Request $request): Response
     {
-        return $this->page('Terms', 'public/terms', 'Terms of use', 'Terms for browsing and copying prompts from Prompt Library.');
+        return $this->page(
+            'Terms of use',
+            'public/terms',
+            '/terms',
+            'Terms of Use | MyPromptArt',
+            'Read the terms for browsing, opening, and copying completed AI image prompts from MyPromptArt.'
+        );
     }
 
     public function robots(Request $request): Response
     {
         $body = "User-agent: *\n";
+        $body .= "Allow: /\n";
         $body .= "Disallow: /admin\n";
         $body .= "Disallow: /login\n";
         $body .= "Disallow: /register\n";
+        $body .= "Disallow: /scripts\n";
         $body .= 'Sitemap: ' . app_url('/sitemap.xml') . "\n";
 
-        return Response::text($body);
+        return Response::text($body, 200, ['Cache-Control' => 'public, max-age=3600']);
     }
 
     public function ads(Request $request): Response
@@ -79,38 +129,149 @@ final class PublicController extends Controller
 
     public function sitemap(Request $request): Response
     {
-        $pages = ['/', '/prompts', '/about', '/contact', '/privacy-policy', '/terms'];
-        $xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+        $promptCount = Prompt::sitemapCount();
+        $categoryCount = count(array_filter(Prompt::publicCategoryCounts()));
+        $publicUrlCount = count(self::PUBLIC_PAGES) + $categoryCount + $promptCount;
 
-        foreach ($pages as $page) {
-            $xml[] = '<url><loc>' . e(app_url($page)) . '</loc><changefreq>weekly</changefreq></url>';
+        if ($publicUrlCount <= 50000) {
+            return $this->urlSetResponse(
+                array_merge($this->pageSitemapEntries(), $this->promptSitemapEntries(1, 50000))
+            );
         }
 
-        foreach (Prompt::sitemapCompleted() as $prompt) {
-            $lastmod = date('Y-m-d', strtotime((string) ($prompt['updated_at'] ?? $prompt['generated_at'] ?? 'now')));
-            $xml[] = '<url><loc>' . e(app_url('/prompts/' . Prompt::publicIdentifier($prompt))) . '</loc><lastmod>' . e($lastmod) . '</lastmod><changefreq>weekly</changefreq></url>';
+        $pages = max(1, (int) ceil($promptCount / self::SITEMAP_CHUNK_SIZE));
+        $xml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+            '<sitemap><loc>' . SeoService::xml(app_url('/sitemaps/pages.xml')) . '</loc></sitemap>',
+        ];
+
+        for ($page = 1; $page <= $pages; $page++) {
+            $xml[] = '<sitemap><loc>'
+                . SeoService::xml(app_url('/sitemaps/prompts-' . $page . '.xml'))
+                . '</loc></sitemap>';
+        }
+
+        $xml[] = '</sitemapindex>';
+
+        return $this->xmlResponse(implode("\n", $xml));
+    }
+
+    public function sitemapPages(Request $request): Response
+    {
+        return $this->urlSetResponse($this->pageSitemapEntries());
+    }
+
+    public function sitemapPrompts(Request $request, string $page): Response
+    {
+        if (! ctype_digit($page) || (int) $page < 1) {
+            return Response::xml($this->emptyUrlSet(), 404, ['X-Robots-Tag' => 'noindex']);
+        }
+
+        $pageNumber = (int) $page;
+        $lastPage = max(1, (int) ceil(Prompt::sitemapCount() / self::SITEMAP_CHUNK_SIZE));
+
+        if ($pageNumber > $lastPage) {
+            return Response::xml($this->emptyUrlSet(), 404, ['X-Robots-Tag' => 'noindex']);
+        }
+
+        return $this->urlSetResponse($this->promptSitemapEntries($pageNumber));
+    }
+
+    private function page(
+        string $title,
+        string $view,
+        string $path,
+        string $metaTitle,
+        string $description,
+        array $data = []
+    ): Response {
+        $canonical = app_url($path);
+
+        return $this->view($view, array_merge($data, [
+            'title' => $title,
+            'metaTitle' => $metaTitle,
+            'metaDescription' => $description,
+            'canonical' => $canonical,
+            'structuredData' => [
+                SeoService::webPageSchema($metaTitle, $description, $canonical),
+                SeoService::websiteSchema(),
+                SeoService::organizationSchema(),
+            ],
+            'showAds' => SeoService::canShowAds(),
+        ]));
+    }
+
+    private function pageSitemapEntries(): array
+    {
+        $entries = array_map(
+            static fn (string $path): array => ['loc' => app_url($path)],
+            self::PUBLIC_PAGES
+        );
+
+        foreach (Prompt::publicCategoryCounts() as $category => $count) {
+            if ($count > 0) {
+                $entries[] = ['loc' => SeoService::categoryUrl($category)];
+            }
+        }
+
+        return $entries;
+    }
+
+    private function promptSitemapEntries(int $page, int $limit = self::SITEMAP_CHUNK_SIZE): array
+    {
+        $offset = ($page - 1) * $limit;
+        $entries = [];
+
+        foreach (Prompt::sitemapCompleted($limit, $offset) as $prompt) {
+            $timestamp = strtotime((string) ($prompt['updated_at'] ?? $prompt['generated_at'] ?? ''));
+            $entry = [
+                'loc' => SeoService::promptUrl($prompt),
+                'lastmod' => $timestamp ? date('Y-m-d', $timestamp) : null,
+                'image' => SeoService::assetUrl($prompt['thumbnail_path'] ?? null),
+            ];
+            $entries[] = $entry;
+        }
+
+        return $entries;
+    }
+
+    private function urlSetResponse(array $entries): Response
+    {
+        $xml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+        ];
+
+        foreach ($entries as $entry) {
+            $url = '<url><loc>' . SeoService::xml((string) $entry['loc']) . '</loc>';
+
+            if (! empty($entry['lastmod'])) {
+                $url .= '<lastmod>' . SeoService::xml((string) $entry['lastmod']) . '</lastmod>';
+            }
+
+            if (! empty($entry['image'])) {
+                $url .= '<image:image><image:loc>' . SeoService::xml((string) $entry['image']) . '</image:loc>';
+                $url .= '</image:image>';
+            }
+
+            $xml[] = $url . '</url>';
         }
 
         $xml[] = '</urlset>';
 
-        return Response::xml(implode("\n", $xml));
+        return $this->xmlResponse(implode("\n", $xml));
     }
 
-    private function page(string $title, string $view, string $metaTitle, string $description): Response
+    private function xmlResponse(string $xml): Response
     {
-        $canonical = app_url('/' . trim(strtolower(str_replace(' ', '-', $title)), '-'));
+        return Response::xml($xml, 200, ['Cache-Control' => 'public, max-age=3600']);
+    }
 
-        return $this->view($view, [
-            'title' => $title,
-            'metaTitle' => $metaTitle,
-            'metaDescription' => $description,
-            'metaKeywords' => 'Prompt Library, AI prompt library, AI image prompts, prompt usage policy',
-            'canonical' => $canonical,
-            'structuredData' => [
-                SeoService::webPageSchema($metaTitle, $description, $canonical),
-                SeoService::organizationSchema(),
-            ],
-            'showAds' => SeoService::canShowAds(),
-        ]);
+    private function emptyUrlSet(): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8"?>'
+            . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';
     }
 }

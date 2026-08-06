@@ -1,8 +1,31 @@
 <section class="library-header compact">
     <div class="library-title">
-        <p class="eyebrow">Prompt library</p>
-        <h1>Search completed prompts</h1>
+        <?php if ($breadcrumbs !== []): ?>
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                <ol>
+                    <?php foreach ($breadcrumbs as $index => $item): ?>
+                        <li>
+                            <?php if ($index < count($breadcrumbs) - 1): ?>
+                                <a href="<?= e($item['url']) ?>"><?= e($item['name']) ?></a>
+                            <?php else: ?>
+                                <span aria-current="page"><?= e($item['name']) ?></span>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+            </nav>
+        <?php endif; ?>
+        <p class="eyebrow"><?= e($listingEyebrow) ?></p>
+        <h1><?= e($listingHeading) ?></h1>
+        <p class="listing-intro"><?= e($listingIntro) ?></p>
         <p class="muted"><?= (int) $results['total'] ?> result<?= (int) $results['total'] === 1 ? '' : 's' ?></p>
+        <div class="category-strip" aria-label="Prompt categories">
+            <?php foreach ($categories as $category): ?>
+                <a href="<?= url('/prompts/category/' . rawurlencode($category)) ?>">
+                    <?= e(\App\Services\SeoService::categoryName($category)) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
     </div>
     <form class="filter-panel" action="<?= url('/prompts') ?>" method="get">
         <label for="q">Search
@@ -34,10 +57,18 @@
 
 <section class="content-band">
     <?php if ($results['items'] === []): ?>
-        <div class="empty-state">No completed prompts match this search.</div>
+        <div class="empty-state">
+            <strong>No completed prompts match this search.</strong>
+            <p>Try a shorter phrase, another category, or reset the filters.</p>
+            <a class="button button-small button-ghost" href="<?= url('/prompts') ?>">Reset filters</a>
+        </div>
     <?php else: ?>
         <div class="prompt-grid">
-            <?php foreach ($results['items'] as $prompt): ?>
+            <?php foreach ($results['items'] as $index => $prompt): ?>
+                <?php
+                $cardImageLoading = $index === 0 ? 'eager' : 'lazy';
+                $cardImageFetchPriority = $index === 0 ? 'high' : 'auto';
+                ?>
                 <?php require base_path('resources/views/partials/prompt-card.php'); ?>
             <?php endforeach; ?>
         </div>

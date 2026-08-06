@@ -15,10 +15,13 @@ $router->get('/privacy-policy', [PublicController::class, 'privacy']);
 $router->get('/terms', [PublicController::class, 'terms']);
 $router->get('/robots.txt', [PublicController::class, 'robots']);
 $router->get('/sitemap.xml', [PublicController::class, 'sitemap']);
+$router->get('/sitemaps/pages.xml', [PublicController::class, 'sitemapPages']);
+$router->get('/sitemaps/prompts-{page}.xml', [PublicController::class, 'sitemapPrompts']);
 $router->get('/ads.txt', [PublicController::class, 'ads']);
 
 $router->get('/prompts', [PromptController::class, 'index']);
 $router->post('/prompts/{id}/copy', [PromptController::class, 'copy'], ['csrf']);
+$router->get('/prompts/category/{category}', [PromptController::class, 'category']);
 $router->get('/prompts/{identifier}', [PromptController::class, 'show']);
 
 $router->get('/register', [AuthController::class, 'showRegister'], ['guest']);
@@ -36,4 +39,3 @@ $router->get('/admin/prompts/{id}/edit', [AdminPromptController::class, 'edit'],
 $router->post('/admin/prompts/{id}', [AdminPromptController::class, 'update'], ['admin', 'csrf']);
 $router->post('/admin/prompts/{id}/delete', [AdminPromptController::class, 'destroy'], ['admin', 'csrf']);
 $router->post('/admin/prompts/{id}/regenerate', [AdminPromptController::class, 'regenerate'], ['admin', 'csrf']);
-

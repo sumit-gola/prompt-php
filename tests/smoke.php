@@ -49,7 +49,10 @@ foreach ([
     ['GET', '/terms'],
     ['GET', '/robots.txt'],
     ['GET', '/sitemap.xml'],
+    ['GET', '/sitemaps/pages.xml'],
+    ['GET', '/sitemaps/prompts-{page}.xml'],
     ['GET', '/ads.txt'],
+    ['GET', '/prompts/category/{category}'],
 ] as [$method, $path]) {
     $assert($findRoute($method, $path) !== null, "Missing public route {$method} {$path}");
 }
@@ -78,6 +81,14 @@ foreach ($routes as $route) {
 
 $copyRoute = $findRoute('POST', '/prompts/{id}/copy');
 $assert($copyRoute !== null && ! in_array('admin', $copyRoute['middleware'], true), 'Copy endpoint should be public but CSRF protected.');
+
+$routePaths = array_column($routes, 'path');
+$categoryRoutePosition = array_search('/prompts/category/{category}', $routePaths, true);
+$promptRoutePosition = array_search('/prompts/{identifier}', $routePaths, true);
+$assert(
+    is_int($categoryRoutePosition) && is_int($promptRoutePosition) && $categoryRoutePosition < $promptRoutePosition,
+    'Category route must be registered before the generic prompt route.'
+);
 
 $promptReflection = new ReflectionClass(\App\Models\Prompt::class);
 $publicWhere = $promptReflection->getMethod('publicWhere');

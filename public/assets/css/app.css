@@ -29,6 +29,135 @@
     --font-mono: "SFMono-Regular", "Roboto Mono", Consolas, "Liberation Mono", monospace;
 }
 
+/* SEO and semantic navigation enhancements */
+.skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 100;
+    border: 1px solid #0891b2;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 800;
+    padding: 9px 12px;
+    transform: translateY(-150%);
+    transition: transform .15s ease;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+.breadcrumbs {
+    min-width: 0;
+    margin: 0 0 9px;
+}
+
+.breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    color: #64748b;
+    font-size: .76rem;
+    font-weight: 750;
+}
+
+.breadcrumbs li:not(:last-child)::after {
+    content: "/";
+    margin-left: 5px;
+    color: #a9b8ca;
+}
+
+.breadcrumbs a {
+    color: #0e7490;
+}
+
+.breadcrumbs [aria-current="page"] {
+    overflow: hidden;
+    max-width: min(48vw, 380px);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listing-intro {
+    max-width: 760px;
+    margin: 10px 0 4px;
+    color: #52647a;
+    font-size: .94rem;
+}
+
+.prompt-meta a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 27px;
+    border: 1px solid #d8e5f2;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .72);
+    color: #52647a;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    font-weight: 850;
+    padding: 4px 8px;
+    text-transform: uppercase;
+}
+
+.prompt-meta a:hover {
+    border-color: rgba(8, 145, 178, .3);
+    background: #eafaff;
+    color: #075985;
+}
+
+.publication-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    color: #64748b;
+    font-size: .78rem;
+}
+
+.publication-meta time {
+    color: #334155;
+    font-weight: 750;
+}
+
+.empty-state strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #0f172a;
+}
+
+.empty-state p {
+    margin: 0 0 12px;
+}
+
+.text-page a:not(.button) {
+    color: #0e7490;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+    .breadcrumbs [aria-current="page"] {
+        max-width: 54vw;
+    }
+
+    .listing-intro {
+        font-size: .9rem;
+    }
+}
+
 * {
     box-sizing: border-box;
 }

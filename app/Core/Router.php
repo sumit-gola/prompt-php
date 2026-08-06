@@ -23,7 +23,8 @@ final class Router
     public function add(string $method, string $path, array|callable $handler, array $middleware = []): self
     {
         $path = $path === '/' ? '/' : '/' . trim($path, '/');
-        $pattern = preg_replace('#\{([a-zA-Z_][a-zA-Z0-9_]*)\}#', '(?P<$1>[^/]+)', $path);
+        $pattern = preg_quote($path, '#');
+        $pattern = preg_replace('#\\\\\{([a-zA-Z_][a-zA-Z0-9_]*)\\\\\}#', '(?P<$1>[^/]+)', $pattern);
         $pattern = '#^' . $pattern . '$#';
 
         $this->routes[] = compact('method', 'path', 'pattern', 'handler', 'middleware');
@@ -53,7 +54,19 @@ final class Router
             return $this->call($route['handler'], $request, $params);
         }
 
-        return Response::html(View::render('public/404', ['title' => 'Page not found'], 'layouts/public'), 404);
+        return Response::html(
+            View::render('public/404', [
+                'title' => 'Page not found',
+                'metaTitle' => 'Page Not Found | MyPromptArt',
+                'metaDescription' => 'The requested MyPromptArt page could not be found.',
+                'canonical' => app_url($request->path()),
+                'noindex' => true,
+                'nofollow' => true,
+                'showAds' => false,
+            ], 'layouts/public'),
+            404,
+            ['X-Robots-Tag' => 'noindex, nofollow']
+        );
     }
 
     public function routes(): array
@@ -86,7 +99,19 @@ final class Router
             $user = Auth::user();
 
             if (! $user || ! User::isAdmin($user)) {
-                return Response::html(View::render('public/403', ['title' => 'Forbidden'], 'layouts/public'), 403);
+                return Response::html(
+                    View::render('public/403', [
+                        'title' => 'Forbidden',
+                        'metaTitle' => 'Access Denied | MyPromptArt',
+                        'metaDescription' => 'This MyPromptArt page is not publicly accessible.',
+                        'canonical' => app_url($request->path()),
+                        'noindex' => true,
+                        'nofollow' => true,
+                        'showAds' => false,
+                    ], 'layouts/public'),
+                    403,
+                    ['X-Robots-Tag' => 'noindex, nofollow']
+                );
             }
         }
 
@@ -105,4 +130,3 @@ final class Router
         return $handler($request, ...array_values($params));
     }
 }
-

@@ -165,16 +165,52 @@ final class Prompt
         return $stmt->fetchAll();
     }
 
-    public static function sitemapCompleted(): array
+    public static function sitemapCompleted(int $limit = 45000, int $offset = 0): array
     {
-        $stmt = Database::pdo()->query(
-            "SELECT id, source_slug, updated_at, generated_at
+        $stmt = Database::pdo()->prepare(
+            "SELECT id, title, category, source_slug, thumbnail_path, updated_at, generated_at
              FROM prompts
              WHERE status = 'completed' AND prompt IS NOT NULL AND prompt <> ''
-             ORDER BY updated_at DESC"
+             ORDER BY updated_at DESC, id DESC
+             LIMIT :limit OFFSET :offset"
         );
+        $stmt->bindValue('limit', max(1, $limit), PDO::PARAM_INT);
+        $stmt->bindValue('offset', max(0, $offset), PDO::PARAM_INT);
+        $stmt->execute();
 
         return $stmt->fetchAll();
+    }
+
+    public static function sitemapCount(): int
+    {
+        $stmt = Database::pdo()->query(
+            "SELECT COUNT(*)
+             FROM prompts
+             WHERE status = 'completed' AND prompt IS NOT NULL AND prompt <> ''"
+        );
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    public static function publicCategoryCounts(): array
+    {
+        $stmt = Database::pdo()->query(
+            "SELECT category, COUNT(*) AS prompt_count
+             FROM prompts
+             WHERE status = 'completed' AND prompt IS NOT NULL AND prompt <> ''
+             GROUP BY category"
+        );
+        $counts = array_fill_keys(self::CATEGORIES, 0);
+
+        foreach ($stmt->fetchAll() as $row) {
+            $category = (string) ($row['category'] ?? '');
+
+            if (array_key_exists($category, $counts)) {
+                $counts[$category] = (int) $row['prompt_count'];
+            }
+        }
+
+        return $counts;
     }
 
     public static function related(array $prompt, int $limit = 4): array

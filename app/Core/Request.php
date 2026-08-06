@@ -62,6 +62,11 @@ final class Request
         return array_merge($this->query, $this->post);
     }
 
+    public function queryParams(): array
+    {
+        return $this->query;
+    }
+
     public function post(): array
     {
         return $this->post;
@@ -86,5 +91,10 @@ final class Request
         $requestedWith = (string) ($this->server['HTTP_X_REQUESTED_WITH'] ?? '');
 
         return str_contains($accept, 'application/json') || strtolower($requestedWith) === 'xmlhttprequest';
+    }
+
+    public function server(string $key, mixed $default = null): mixed
+    {
+        return $this->server[$key] ?? $default;
     }
 }

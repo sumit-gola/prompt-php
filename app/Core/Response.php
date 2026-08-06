@@ -52,4 +52,19 @@ final class Response
 
         echo $this->body;
     }
+
+    public function body(): string
+    {
+        return $this->body;
+    }
+
+    public function status(): int
+    {
+        return $this->status;
+    }
+
+    public function headers(): array
+    {
+        return $this->headers;
+    }
 }

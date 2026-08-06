@@ -13,12 +13,20 @@ abstract class Controller
 
     protected function adminView(string $template, array $data = [], int $status = 200): Response
     {
-        return Response::html(View::render($template, $data, 'layouts/admin'), $status);
+        return Response::html(
+            View::render($template, $data, 'layouts/admin'),
+            $status,
+            ['X-Robots-Tag' => 'noindex, nofollow']
+        );
     }
 
     protected function authView(string $template, array $data = [], int $status = 200): Response
     {
-        return Response::html(View::render($template, $data, 'layouts/auth'), $status);
+        return Response::html(
+            View::render($template, $data, 'layouts/auth'),
+            $status,
+            ['X-Robots-Tag' => 'noindex, nofollow']
+        );
     }
 
     protected function redirect(string $path): Response
@@ -39,4 +47,3 @@ abstract class Controller
         return Response::redirect((string) ($_SERVER['HTTP_REFERER'] ?? '/'));
     }
 }
-
