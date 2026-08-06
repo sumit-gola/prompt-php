@@ -21,7 +21,6 @@ $shareImageFile = public_path(ltrim($shareImagePath, '/'));
 $ogUpdatedTime = $ogUpdatedTime ?? (is_file($shareImageFile) ? date(DATE_ATOM, (int) filemtime($shareImageFile)) : date(DATE_ATOM));
 $twitterCard = 'summary_large_image';
 $structuredData = $structuredData ?? [];
-$user = \App\Core\Auth::user();
 ?>
 <!doctype html>
 <html lang="en">
@@ -88,11 +87,6 @@ $user = \App\Core\Auth::user();
                 <a href="<?= url('/prompts') ?>">Library</a>
                 <a href="<?= url('/about') ?>">About</a>
                 <a href="<?= url('/contact') ?>">Contact</a>
-                <?php if ($user && (int) ($user['is_admin'] ?? 0) === 1): ?>
-                    <a href="<?= url('/admin') ?>">Admin</a>
-                <?php else: ?>
-                    <a href="<?= url('/login') ?>">Sign in</a>
-                <?php endif; ?>
             </nav>
         </div>
     </header>

@@ -64,7 +64,6 @@ drawText($image, 'Search', 714, 37, 15, $fontBold, $white);
 drawText($image, 'Library', 884, 39, 15, $fontBold, color($image, '#475569'));
 drawText($image, 'About', 958, 39, 15, $fontBold, color($image, '#475569'));
 drawText($image, 'Contact', 1022, 39, 15, $fontBold, color($image, '#475569'));
-drawText($image, 'Sign in', 1100, 39, 15, $fontBold, color($image, '#475569'));
 
 // Command-center hero area.
 drawText($image, 'PROMPT  COMMAND  CENTER', 24, 98, 12, $fontBold, $blue);
