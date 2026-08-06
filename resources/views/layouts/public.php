@@ -102,7 +102,7 @@ $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
                     src="<?= asset('assets/img/my-prompt-art-logo.webp') ?>"
                     alt="MyPromptArt — Creative AI Prompts &amp; Ideas"
                     width="1200"
-                    height="337"
+                    height="408"
                 >
             </a>
             <form class="header-search" action="<?= url('/prompts') ?>" method="get" role="search">

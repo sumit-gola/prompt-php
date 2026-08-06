@@ -127,8 +127,8 @@ $headerLogoSize = getimagesize(public_path('assets/img/my-prompt-art-logo.webp')
 $headerLogoBytes = file_get_contents(public_path('assets/img/my-prompt-art-logo.webp'));
 $faviconSize = getimagesize(public_path('favicon.png'));
 $assert(
-    is_array($headerLogoSize) && $headerLogoSize[0] === 1200 && $headerLogoSize[1] === 337 && ($headerLogoSize['mime'] ?? null) === 'image/webp',
-    'Header logo should be the optimized 1200x337 WebP asset.'
+    is_array($headerLogoSize) && $headerLogoSize[0] === 1200 && $headerLogoSize[1] === 408 && ($headerLogoSize['mime'] ?? null) === 'image/webp',
+    'Header logo should be the optimized 1200x408 WebP asset.'
 );
 $assert(
     is_string($headerLogoBytes) && str_contains($headerLogoBytes, 'ALPH'),
