@@ -66,6 +66,12 @@ $assert(preg_match('/-960w\.webp\?v=\d+ 960w/', (string) ($image['webp_srcset'] 
 $assert(! str_contains((string) ($image['url'] ?? ''), '4b19c328-1913-4317-a359-fe5cb3dec87d'), 'Crawler-facing image URLs should not expose UUID filenames.');
 
 if (function_exists('imageavif')) {
+    unlink($testRoot . '/' . $expectedStem . '-480w.avif');
+    $resumedImage = PromptImageService::optimize($prompt);
+    $assert($resumedImage !== null && is_file($testRoot . '/' . $expectedStem . '-480w.avif'), 'Optimization should resume a missing AVIF derivative when the canonical WebP already exists.');
+}
+
+if (function_exists('imageavif')) {
     $assert(is_file($testRoot . '/' . $expectedStem . '.avif'), 'The full-size AVIF image should be generated when GD supports AVIF.');
     $assert(preg_match('/-480w\.avif\?v=\d+ 480w/', (string) ($image['avif_srcset'] ?? '')) === 1, 'Responsive metadata should advertise AVIF candidates when available.');
 }

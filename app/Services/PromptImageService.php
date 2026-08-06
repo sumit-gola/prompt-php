@@ -16,6 +16,8 @@ final class PromptImageService
 
     private const AVIF_QUALITY = 58;
 
+    private const AVIF_SPEED = 8;
+
     public static function metadata(array $prompt, bool $generate = false): ?array
     {
         $canonicalPath = self::plannedPath($prompt);
@@ -43,54 +45,53 @@ final class PromptImageService
         $canonicalPath = self::OUTPUT_DIRECTORY . '/' . $slug . '.webp';
         $canonicalAbsolutePath = public_path($canonicalPath);
 
-        if (! $force && is_file($canonicalAbsolutePath)) {
-            return self::metadataForPath($canonicalPath, $prompt);
-        }
-
         if (! extension_loaded('gd') || ! function_exists('imagewebp')) {
-            return null;
+            return is_file($canonicalAbsolutePath) ? self::metadataForPath($canonicalPath, $prompt) : null;
         }
 
         $sourcePath = self::sourcePath($prompt, $preferredSource);
 
         if ($sourcePath === null) {
-            return null;
+            return is_file($canonicalAbsolutePath) ? self::metadataForPath($canonicalPath, $prompt) : null;
         }
 
         $sourceAbsolutePath = public_path($sourcePath);
         $info = getimagesize($sourceAbsolutePath);
 
         if (! is_array($info) || ($info[0] ?? 0) < 1 || ($info[1] ?? 0) < 1) {
-            return null;
+            return is_file($canonicalAbsolutePath) ? self::metadataForPath($canonicalPath, $prompt) : null;
+        }
+
+        $sourceWidth = (int) $info[0];
+        $sourceHeight = (int) $info[1];
+        $directory = dirname($canonicalAbsolutePath);
+
+        if (! $force && self::derivativesComplete($directory, $slug, $sourceWidth)) {
+            return self::metadataForPath($canonicalPath, $prompt);
         }
 
         $source = self::sourceImage($sourceAbsolutePath, (string) ($info['mime'] ?? ''));
 
         if (! $source) {
-            return null;
+            return is_file($canonicalAbsolutePath) ? self::metadataForPath($canonicalPath, $prompt) : null;
         }
-
-        $directory = dirname($canonicalAbsolutePath);
 
         if (! is_dir($directory) && ! mkdir($directory, 0755, true) && ! is_dir($directory)) {
             imagedestroy($source);
             return null;
         }
 
-        $sourceWidth = (int) $info[0];
-        $sourceHeight = (int) $info[1];
-        $webpSaved = self::saveResized(
-            $source,
-            $sourceWidth,
-            $sourceHeight,
-            $sourceWidth,
-            $canonicalAbsolutePath,
-            'webp'
-        );
+        $successful = true;
 
-        if (! $webpSaved) {
-            imagedestroy($source);
-            return null;
+        if ($force || ! is_file($canonicalAbsolutePath)) {
+            $successful = self::saveResized(
+                $source,
+                $sourceWidth,
+                $sourceHeight,
+                $sourceWidth,
+                $canonicalAbsolutePath,
+                'webp'
+            ) && $successful;
         }
 
         foreach (self::RESPONSIVE_WIDTHS as $width) {
@@ -98,43 +99,59 @@ final class PromptImageService
                 continue;
             }
 
-            self::saveResized(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $width,
-                $directory . '/' . $slug . '-' . $width . 'w.webp',
-                'webp'
-            );
+            $target = $directory . '/' . $slug . '-' . $width . 'w.webp';
+
+            if ($force || ! is_file($target)) {
+                $successful = self::saveResized(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $width,
+                    $target,
+                    'webp'
+                ) && $successful;
+            }
         }
 
         if (function_exists('imageavif')) {
-            self::saveResized(
-                $source,
-                $sourceWidth,
-                $sourceHeight,
-                $sourceWidth,
-                $directory . '/' . $slug . '.avif',
-                'avif'
-            );
+            $fullAvif = $directory . '/' . $slug . '.avif';
+
+            if ($force || ! is_file($fullAvif)) {
+                $successful = self::saveResized(
+                    $source,
+                    $sourceWidth,
+                    $sourceHeight,
+                    $sourceWidth,
+                    $fullAvif,
+                    'avif'
+                ) && $successful;
+            }
 
             foreach (self::RESPONSIVE_WIDTHS as $width) {
                 if ($width >= $sourceWidth) {
                     continue;
                 }
 
-                self::saveResized(
-                    $source,
-                    $sourceWidth,
-                    $sourceHeight,
-                    $width,
-                    $directory . '/' . $slug . '-' . $width . 'w.avif',
-                    'avif'
-                );
+                $target = $directory . '/' . $slug . '-' . $width . 'w.avif';
+
+                if ($force || ! is_file($target)) {
+                    $successful = self::saveResized(
+                        $source,
+                        $sourceWidth,
+                        $sourceHeight,
+                        $width,
+                        $target,
+                        'avif'
+                    ) && $successful;
+                }
             }
         }
 
         imagedestroy($source);
+
+        if (! $successful) {
+            return null;
+        }
 
         return self::metadataForPath($canonicalPath, $prompt);
     }
@@ -303,6 +320,27 @@ final class PromptImageService
         };
     }
 
+    private static function derivativesComplete(string $directory, string $slug, int $sourceWidth): bool
+    {
+        $formats = function_exists('imageavif') ? ['webp', 'avif'] : ['webp'];
+        $widths = array_merge([$sourceWidth], array_filter(
+            self::RESPONSIVE_WIDTHS,
+            static fn (int $width): bool => $width < $sourceWidth
+        ));
+
+        foreach ($formats as $format) {
+            foreach ($widths as $width) {
+                $suffix = $width === $sourceWidth ? '' : '-' . $width . 'w';
+
+                if (! is_file($directory . '/' . $slug . $suffix . '.' . $format)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private static function saveResized(
         mixed $source,
         int $sourceWidth,
@@ -337,7 +375,7 @@ final class PromptImageService
 
         $temporaryPath = $targetPath . '.tmp-' . bin2hex(random_bytes(6));
         $saved = $format === 'avif'
-            ? imageavif($target, $temporaryPath, self::AVIF_QUALITY)
+            ? imageavif($target, $temporaryPath, self::AVIF_QUALITY, self::AVIF_SPEED)
             : imagewebp($target, $temporaryPath, self::WEBP_QUALITY);
         imagedestroy($target);
 
