@@ -18,9 +18,9 @@ final class PublicController extends Controller
 
         return $this->view('public/home', [
             'title' => 'MyPromptArt',
-            'metaTitle' => 'MyPromptArt - AI Prompt Library for Creators',
-            'metaDescription' => 'Search, open, and copy ready-to-use AI image prompts for portraits, fashion, products, lifestyle, and art.',
-            'metaKeywords' => 'MyPromptArt, AI image prompts, prompt library, copy prompts, generative AI prompts, image generation prompts',
+            'metaTitle' => 'MyPromptArt - AI Photo Editing Prompt Library',
+            'metaDescription' => 'Browse premium AI photo editing prompts for portraits, products, fashion, lifestyle, and art. Search, open, and copy prompts ready for creators.',
+            'metaKeywords' => 'MyPromptArt, AI photo editing prompts, AI image prompts, prompt library, copy prompts, generative AI prompts, image generation prompts',
             'canonical' => app_url('/'),
             'ogImageAlt' => SeoService::defaultShareImageAlt(),
             'structuredData' => [

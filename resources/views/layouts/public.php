@@ -17,6 +17,8 @@ $shareImageType = $ogImageType ?? match (true) {
 };
 $shareImageWidth = $ogImageWidth ?? ($providedOgImage ? null : 1200);
 $shareImageHeight = $ogImageHeight ?? ($providedOgImage ? null : 630);
+$shareImageFile = public_path(ltrim($shareImagePath, '/'));
+$ogUpdatedTime = $ogUpdatedTime ?? (is_file($shareImageFile) ? date(DATE_ATOM, (int) filemtime($shareImageFile)) : date(DATE_ATOM));
 $twitterCard = 'summary_large_image';
 $structuredData = $structuredData ?? [];
 $user = \App\Core\Auth::user();
@@ -46,6 +48,7 @@ $user = \App\Core\Auth::user();
     <meta property="og:type" content="<?= e($ogType) ?>">
     <meta property="og:url" content="<?= e($canonicalUrl) ?>">
     <meta property="og:image" content="<?= e($shareImage) ?>">
+    <meta property="og:image:url" content="<?= e($shareImage) ?>">
     <meta property="og:image:secure_url" content="<?= e($shareImage) ?>">
     <meta property="og:image:type" content="<?= e($shareImageType) ?>">
     <?php if ($shareImageWidth !== null && $shareImageHeight !== null): ?>
@@ -53,10 +56,12 @@ $user = \App\Core\Auth::user();
         <meta property="og:image:height" content="<?= (int) $shareImageHeight ?>">
     <?php endif; ?>
     <meta property="og:image:alt" content="<?= e($shareImageAlt) ?>">
+    <meta property="og:updated_time" content="<?= e($ogUpdatedTime) ?>">
     <meta name="twitter:card" content="<?= e($twitterCard) ?>">
     <meta name="twitter:title" content="<?= e($pageTitle) ?>">
     <meta name="twitter:description" content="<?= e($description) ?>">
     <meta name="twitter:image" content="<?= e($shareImage) ?>">
+    <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="#f6f9fc">
     <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260806light">
