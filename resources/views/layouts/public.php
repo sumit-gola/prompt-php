@@ -99,7 +99,7 @@ $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
         <div class="site-header-inner">
             <a class="brand header-brand-logo" href="<?= url('/') ?>" aria-label="<?= e($siteName) ?> home">
                 <img
-                    src="<?= asset('assets/img/my-prompt-art-logo.webp') ?>"
+                    src="<?= asset('assets/img/my-prompt-art-logo.webp') ?>?v=20260807color1"
                     alt="MyPromptArt — Creative AI Prompts &amp; Ideas"
                     width="1200"
                     height="408"
