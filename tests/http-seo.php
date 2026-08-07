@@ -102,6 +102,10 @@ $assert(
 $assert(str_contains($home, '"name":"MyPromptArt"'), 'Homepage structured data should use the canonical brand name.');
 $assert(str_contains($home, '"alternateName":"MPA"'), 'Homepage structured data should expose MPA as the alternate name.');
 $assert(str_contains($home, '<strong>MyPromptArt</strong>'), 'Homepage footer should use the canonical brand name.');
+$assert(str_contains($home, '"sameAs":["https://www.facebook.com/MyPromptArt","https://x.com/MyPromptArt","https://www.instagram.com/mypromptart/","https://www.youtube.com/@MyPromptArt","https://www.pinterest.com/mypromptart/"]'), 'Homepage Organization data should expose the official social profiles.');
+foreach (['Facebook', 'X', 'Instagram', 'YouTube', 'Pinterest'] as $platform) {
+    $assert(str_contains($home, '>' . $platform . '</a>'), "Homepage footer should render the {$platform} social link.");
+}
 $assertJsonLd($home, 'Homepage');
 $homeAdsense = AdSenseService::configuration(str_contains($home, 'class="prompt-card"'), 'home');
 

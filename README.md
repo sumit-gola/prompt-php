@@ -49,6 +49,7 @@ AI_PROVIDER=none
 CONTACT_EMAIL=hello@mypromptart.com
 GOOGLE_SITE_VERIFICATION=
 BING_SITE_VERIFICATION=
+GTM_CONTAINER_ID=GTM-KG53Q7R5
 ```
 
 For the live site, set `APP_URL=https://mypromptart.com`. Production startup rejects a missing or non-HTTPS `APP_URL`, and public GET/HEAD requests are redirected to the configured scheme and host. The included Apache `public/.htaccess` also sends `www.mypromptart.com` directly to the non-www HTTPS origin with a `301`, preserving the request path and query string. Keep verification tokens and contact details in `.env`; do not hardcode or commit them.
@@ -119,6 +120,8 @@ The public templates use intrinsic dimensions, descriptive alt text, `picture`/`
 
 The app renders unique titles and descriptions, absolute canonical URLs, Open Graph and Twitter cards, JSON-LD, visible breadcrumbs, `robots.txt`, image-aware sitemaps, and `ads.txt`.
 
+The public footer links to the official Facebook, X, Instagram, YouTube, and Pinterest profiles. Those URLs are also published in the Organization JSON-LD `sameAs` property. A valid `GTM_CONTAINER_ID` enables the Google Tag Manager script in the `<head>` and its `<noscript>` fallback immediately after `<body>` across public, authentication, and admin pages.
+
 - `/`, trust pages, clean library pagination, populated category pages, and completed prompt details are indexable.
 - Search, sort, and query-string filter combinations are `noindex,follow` and canonicalize to their clean library or category page.
 - Admin, auth, forbidden, missing, and server-error responses are `noindex,nofollow`.
@@ -169,6 +172,7 @@ Social platforms cache previews. After changing a prompt thumbnail or the defaul
 php tests/smoke.php
 php tests/seo.php
 php tests/adsense.php
+php tests/google-tag-manager.php
 ```
 
 These tests do not require a database. They check expected public/admin routes, route ordering, CSRF, admin middleware, canonical helpers, metadata escaping, robots directives, structured data, HTTP status handling, AdSense identifier normalization, safe placements, and the exact ads.txt response.

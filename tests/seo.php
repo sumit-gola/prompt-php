@@ -77,6 +77,18 @@ $assert(
         && ($organizationSchema['logo']['height'] ?? null) === 408,
     'Organization logo schema should use the real image dimensions.'
 );
+$expectedSocialProfiles = [
+    'Facebook' => 'https://www.facebook.com/MyPromptArt',
+    'X' => 'https://x.com/MyPromptArt',
+    'Instagram' => 'https://www.instagram.com/mypromptart/',
+    'YouTube' => 'https://www.youtube.com/@MyPromptArt',
+    'Pinterest' => 'https://www.pinterest.com/mypromptart/',
+];
+$assert(SeoService::socialProfiles() === $expectedSocialProfiles, 'Social profiles should match the official account URLs.');
+$assert(
+    ($organizationSchema['sameAs'] ?? null) === array_values($expectedSocialProfiles),
+    'Organization schema should expose every official social profile through sameAs.'
+);
 $assert(
     SeoService::defaultShareImageUrl() === 'https://mypromptart.com/assets/img/share-card-public.png?v=20260807brand1',
     'The branded Open Graph image should use a cache-busting URL.'
@@ -215,6 +227,12 @@ $assert(str_contains($html, 'rel="canonical" href="https://mypromptart.com/missi
 $assert(str_contains($html, 'assets/img/my-prompt-art-logo.webp'), 'Public header should render the MyPromptArt logo asset.');
 $assert(! str_contains($html, '<span class="brand-mark">PL</span>'), 'Public header should not render the legacy PL badge.');
 $assert(str_contains($html, '<strong>MyPromptArt</strong>'), 'Public footer should use the canonical MyPromptArt brand.');
+foreach ($expectedSocialProfiles as $platform => $profileUrl) {
+    $assert(
+        str_contains($html, 'href="' . $profileUrl . '"') && str_contains($html, '>' . $platform . '</a>'),
+        "Public footer should link to the official {$platform} profile."
+    );
+}
 $assert(str_contains($html, 'property="og:site_name" content="MyPromptArt"'), 'Open Graph site name should use MyPromptArt.');
 $assert(str_contains($html, 'rel="icon"') && str_contains($html, '/favicon.png"'), 'Public pages should render the PNG favicon.');
 $assert(str_contains($html, 'rel="apple-touch-icon"') && str_contains($html, '/apple-touch-icon.png"'), 'Public pages should render the Apple touch icon.');

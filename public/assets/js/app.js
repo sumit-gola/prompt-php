@@ -65,13 +65,15 @@ document.addEventListener('submit', (event) => {
 });
 
 (() => {
-    const floatingHeader = document.querySelector('[data-floating-header]');
+    const siteHeader = document.querySelector('[data-site-header]');
 
-    if (!floatingHeader) {
+    if (!siteHeader) {
         return;
     }
 
-    const navLinks = Array.from(floatingHeader.querySelectorAll('[data-home-nav]'));
+    const navToggle = siteHeader.querySelector('[data-site-nav-toggle]');
+    const navMenu = siteHeader.querySelector('[data-site-nav-menu]');
+    const navLinks = Array.from(siteHeader.querySelectorAll('[data-home-nav]'));
     const sections = navLinks
         .map((link) => ({
             key: link.dataset.homeNav,
@@ -80,7 +82,23 @@ document.addEventListener('submit', (event) => {
         }))
         .filter((item) => item.section);
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileNavigation = window.matchMedia('(max-width: 860px)');
     let frameRequested = false;
+
+    const setMenuOpen = (isOpen) => {
+        if (!navToggle || !navMenu) {
+            return;
+        }
+
+        navMenu.classList.toggle('is-open', isOpen);
+        navToggle.setAttribute('aria-expanded', String(isOpen));
+
+        const label = navToggle.querySelector('.site-nav-toggle-label');
+
+        if (label) {
+            label.textContent = isOpen ? 'Close' : 'Menu';
+        }
+    };
 
     const setActiveLink = (key) => {
         sections.forEach((item) => {
@@ -96,9 +114,14 @@ document.addEventListener('submit', (event) => {
     };
 
     const updateFloatingNavigation = () => {
-        floatingHeader.classList.toggle('is-scrolled', window.scrollY > 18);
+        siteHeader.classList.toggle('is-scrolled', window.scrollY > 18);
 
-        const activationLine = floatingHeader.getBoundingClientRect().bottom + 80;
+        if (sections.length === 0) {
+            frameRequested = false;
+            return;
+        }
+
+        const activationLine = siteHeader.getBoundingClientRect().bottom + 80;
         let activeKey = sections[0]?.key;
 
         sections.forEach((item) => {
@@ -113,6 +136,36 @@ document.addEventListener('submit', (event) => {
 
         frameRequested = false;
     };
+
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+            const isOpen = navToggle.getAttribute('aria-expanded') !== 'true';
+            setMenuOpen(isOpen);
+        });
+
+        navMenu.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => setMenuOpen(false));
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!mobileNavigation.matches
+                || navToggle.getAttribute('aria-expanded') !== 'true'
+                || siteHeader.contains(event.target)) {
+                return;
+            }
+
+            setMenuOpen(false);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape' || navToggle.getAttribute('aria-expanded') !== 'true') {
+                return;
+            }
+
+            setMenuOpen(false);
+            navToggle.focus();
+        });
+    }
 
     const requestNavigationUpdate = () => {
         if (frameRequested) {
@@ -142,6 +195,12 @@ document.addEventListener('submit', (event) => {
     });
 
     window.addEventListener('scroll', requestNavigationUpdate, { passive: true });
-    window.addEventListener('resize', requestNavigationUpdate);
+    window.addEventListener('resize', () => {
+        if (!mobileNavigation.matches) {
+            setMenuOpen(false);
+        }
+
+        requestNavigationUpdate();
+    });
     updateFloatingNavigation();
 })();

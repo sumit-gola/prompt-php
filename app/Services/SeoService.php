@@ -13,6 +13,14 @@ final class SeoService
 
     private const SITE_ALTERNATE_NAME = 'MPA';
 
+    private const SOCIAL_PROFILES = [
+        'Facebook' => 'https://www.facebook.com/MyPromptArt',
+        'X' => 'https://x.com/MyPromptArt',
+        'Instagram' => 'https://www.instagram.com/mypromptart/',
+        'YouTube' => 'https://www.youtube.com/@MyPromptArt',
+        'Pinterest' => 'https://www.pinterest.com/mypromptart/',
+    ];
+
     private const CATEGORY_CONTENT = [
         'portrait' => [
             'name' => 'Portrait',
@@ -66,6 +74,11 @@ final class SeoService
     public static function siteAlternateName(): string
     {
         return self::SITE_ALTERNATE_NAME;
+    }
+
+    public static function socialProfiles(): array
+    {
+        return self::SOCIAL_PROFILES;
     }
 
     public static function promptUrl(array $prompt): string
@@ -289,6 +302,7 @@ final class SeoService
                 'caption' => self::siteName(),
             ],
             'image' => ['@id' => app_url('/#logo')],
+            'sameAs' => array_values(self::socialProfiles()),
         ];
     }
 

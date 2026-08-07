@@ -29,8 +29,10 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
 <!doctype html>
 <html lang="en">
 <head>
+    <?php require base_path('resources/views/partials/google-tag-manager-head.php'); ?>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>document.documentElement.classList.add('js');</script>
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($description) ?>">
     <meta name="robots" content="<?= e($robotsDirective) ?>">
@@ -89,7 +91,7 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="<?= ($bodyClass ?? '') === 'home-page' ? '#ffffff' : '#f6f9fc' ?>">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807nav2">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807nav3">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
@@ -98,48 +100,9 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
     <?php endif; ?>
 </head>
 <body class="public-shell<?= ! empty($bodyClass) ? ' ' . e($bodyClass) : '' ?>">
+    <?php require base_path('resources/views/partials/google-tag-manager-body.php'); ?>
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <header class="site-header"<?= ($bodyClass ?? '') === 'home-page' ? ' data-floating-header' : '' ?>>
-        <div class="site-header-inner">
-            <?php if (($bodyClass ?? '') === 'home-page'): ?>
-                <a class="brand home-brand" href="<?= url('/') ?>" aria-label="<?= e($siteName) ?> home">
-                    <span class="home-brand-mark">MPA</span>
-                    <span>MyPromptArt</span>
-                </a>
-                <nav class="site-nav home-site-nav" aria-label="Main navigation">
-                    <a class="is-active" href="#explore" data-home-nav="explore" aria-current="location">Explore</a>
-                    <a href="#categories" data-home-nav="categories">Categories</a>
-                    <a href="<?= url('/about') ?>">About</a>
-                    <a href="<?= url('/contact') ?>">Contact</a>
-                </nav>
-                <div class="home-header-actions">
-                    <a class="home-search-shortcut" href="<?= url('/prompts') ?>" aria-label="Search prompt library">
-                        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="5.5"></circle><path d="m15 15 4 4"></path></svg>
-                    </a>
-                    <a class="button button-small" href="<?= url('/prompts') ?>">Browse prompts</a>
-                </div>
-            <?php else: ?>
-                <a class="brand header-brand-logo" href="<?= url('/') ?>" aria-label="<?= e($siteName) ?> home">
-                    <img
-                        src="<?= asset('assets/img/my-prompt-art-logo.webp') ?>?v=20260807color1"
-                        alt="MyPromptArt — Creative AI Prompts &amp; Ideas"
-                        width="1200"
-                        height="408"
-                    >
-                </a>
-                <form class="header-search" action="<?= url('/prompts') ?>" method="get" role="search">
-                    <label class="sr-only" for="header-q">Search prompts</label>
-                    <input id="header-q" name="q" type="search" placeholder="Search prompts">
-                    <button class="button button-small" type="submit">Search</button>
-                </form>
-                <nav class="site-nav" aria-label="Main navigation">
-                    <a href="<?= url('/prompts') ?>">Library</a>
-                    <a href="<?= url('/about') ?>">About</a>
-                    <a href="<?= url('/contact') ?>">Contact</a>
-                </nav>
-            <?php endif; ?>
-        </div>
-    </header>
+    <?php require base_path('resources/views/partials/site-header.php'); ?>
 
     <?php require base_path('resources/views/partials/flash.php'); ?>
 
@@ -161,13 +124,20 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
             <strong>MyPromptArt</strong>
             <p>Completed prompts. Search, open, copy.</p>
         </div>
-        <nav aria-label="Footer navigation">
-            <a href="<?= url('/privacy-policy') ?>">Privacy</a>
-            <a href="<?= url('/terms') ?>">Terms</a>
-            <a href="<?= url('/sitemap.xml') ?>">Sitemap</a>
-            <a href="<?= url('/robots.txt') ?>">Robots</a>
-        </nav>
+        <div class="footer-navs">
+            <nav class="footer-social" aria-label="Social media">
+                <?php foreach (\App\Services\SeoService::socialProfiles() as $platform => $profileUrl): ?>
+                    <a href="<?= e($profileUrl) ?>" target="_blank" rel="me noopener noreferrer"><?= e($platform) ?></a>
+                <?php endforeach; ?>
+            </nav>
+            <nav aria-label="Footer navigation">
+                <a href="<?= url('/privacy-policy') ?>">Privacy</a>
+                <a href="<?= url('/terms') ?>">Terms</a>
+                <a href="<?= url('/sitemap.xml') ?>">Sitemap</a>
+                <a href="<?= url('/robots.txt') ?>">Robots</a>
+            </nav>
+        </div>
     </footer>
-    <script src="<?= asset('assets/js/app.js') ?>?v=20260807nav1" defer></script>
+    <script src="<?= asset('assets/js/app.js') ?>?v=20260807nav2" defer></script>
 </body>
 </html>

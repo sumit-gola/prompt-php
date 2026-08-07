@@ -7,6 +7,7 @@ $siteAlternateName = \App\Services\SeoService::siteAlternateName();
 <!doctype html>
 <html lang="en">
 <head>
+    <?php require base_path('resources/views/partials/google-tag-manager-head.php'); ?>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
@@ -16,6 +17,7 @@ $siteAlternateName = \App\Services\SeoService::siteAlternateName();
     <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807seo1">
 </head>
 <body class="admin-shell">
+    <?php require base_path('resources/views/partials/google-tag-manager-body.php'); ?>
     <aside class="admin-sidebar">
         <a class="brand admin-brand" href="<?= url('/admin') ?>">
             <span class="brand-mark"><?= e($siteAlternateName) ?></span>
