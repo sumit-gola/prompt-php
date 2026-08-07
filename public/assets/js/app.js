@@ -64,3 +64,84 @@ document.addEventListener('submit', (event) => {
     }
 });
 
+(() => {
+    const floatingHeader = document.querySelector('[data-floating-header]');
+
+    if (!floatingHeader) {
+        return;
+    }
+
+    const navLinks = Array.from(floatingHeader.querySelectorAll('[data-home-nav]'));
+    const sections = navLinks
+        .map((link) => ({
+            key: link.dataset.homeNav,
+            link,
+            section: document.querySelector(`[data-home-section="${link.dataset.homeNav}"]`)
+        }))
+        .filter((item) => item.section);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frameRequested = false;
+
+    const setActiveLink = (key) => {
+        sections.forEach((item) => {
+            const isActive = item.key === key;
+            item.link.classList.toggle('is-active', isActive);
+
+            if (isActive) {
+                item.link.setAttribute('aria-current', 'location');
+            } else {
+                item.link.removeAttribute('aria-current');
+            }
+        });
+    };
+
+    const updateFloatingNavigation = () => {
+        floatingHeader.classList.toggle('is-scrolled', window.scrollY > 18);
+
+        const activationLine = floatingHeader.getBoundingClientRect().bottom + 80;
+        let activeKey = sections[0]?.key;
+
+        sections.forEach((item) => {
+            if (item.section.getBoundingClientRect().top <= activationLine) {
+                activeKey = item.key;
+            }
+        });
+
+        if (activeKey) {
+            setActiveLink(activeKey);
+        }
+
+        frameRequested = false;
+    };
+
+    const requestNavigationUpdate = () => {
+        if (frameRequested) {
+            return;
+        }
+
+        frameRequested = true;
+        window.requestAnimationFrame(updateFloatingNavigation);
+    };
+
+    navLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            const target = document.querySelector(link.hash);
+
+            if (!target) {
+                return;
+            }
+
+            event.preventDefault();
+            setActiveLink(link.dataset.homeNav);
+            target.scrollIntoView({
+                behavior: prefersReducedMotion.matches ? 'auto' : 'smooth',
+                block: 'start'
+            });
+            window.history.replaceState(null, '', link.hash);
+        });
+    });
+
+    window.addEventListener('scroll', requestNavigationUpdate, { passive: true });
+    window.addEventListener('resize', requestNavigationUpdate);
+    updateFloatingNavigation();
+})();

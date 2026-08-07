@@ -84,7 +84,10 @@ $assert(
     $meta($home, 'description') === 'Discover 1,000+ curated AI image and photo-editing prompts for portraits, fashion, products, art and lifestyle. Preview, copy and create better AI images.',
     'Homepage should render its unique keyword-focused meta description.'
 );
-$assert(str_contains($home, '<h1>1,000+ AI Image Prompts for Photo Editing</h1>'), 'Homepage H1 should identify the image and photo-editing focus.');
+$assert(
+    str_contains($home, '<h1 id="home-heading">Find the perfect prompt for any <em>AI</em> image idea.</h1>'),
+    'Homepage H1 should lead with the prompt-discovery value proposition.'
+);
 $assert(
     str_contains($home, 'Browse curated, copy-ready AI prompts for portraits, product photography, fashion, lifestyle and digital art.'),
     'Homepage should include supporting keyword-focused copy.'

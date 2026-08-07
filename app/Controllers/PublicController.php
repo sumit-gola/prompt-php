@@ -56,6 +56,7 @@ final class PublicController extends Controller
             'categoryCounts' => $categoryCounts,
             'publicCompletedCount' => $publicCompletedCount,
             'stats' => $stats,
+            'bodyClass' => 'home-page',
             'showAds' => SeoService::canShowAds(false, count($prompts)),
             'adPlacement' => 'home',
         ]);
