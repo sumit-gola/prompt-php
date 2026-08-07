@@ -108,15 +108,7 @@ $displayPromptCount = $publicCompletedCount >= 1000
     </div>
 </section>
 
-<section class="home-categories" id="categories" data-home-section="categories" aria-labelledby="categories-heading">
-    <div class="home-section-heading">
-        <div>
-            <p class="home-section-kicker">Explore by subject</p>
-            <h2 id="categories-heading">Browse by categories</h2>
-        </div>
-        <a class="home-view-all" href="<?= url('/prompts') ?>">View all <span aria-hidden="true">&#8594;</span></a>
-    </div>
-
+<section class="home-categories" id="categories" data-home-section="categories" aria-label="Browse by categories">
     <?php
     $activeCategory = '';
     $categorySliderVariant = 'home';

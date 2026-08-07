@@ -1,4 +1,4 @@
-<section class="library-header compact">
+<section class="library-header compact library-command">
     <div class="library-title">
         <?php if ($breadcrumbs !== []): ?>
             <nav class="breadcrumbs" aria-label="Breadcrumb">
@@ -21,6 +21,11 @@
         <p class="muted"><?= (int) $results['total'] ?> result<?= (int) $results['total'] === 1 ? '' : 's' ?></p>
     </div>
     <form class="filter-panel" action="<?= url('/prompts') ?>" method="get">
+        <div class="filter-console-heading">
+            <span>Refine results</span>
+            <small>Search, choose a category, then set the order.</small>
+        </div>
+
         <label for="q">Search
             <input id="q" name="q" type="search" value="<?= e($filters['q']) ?>" placeholder="Prompt text, title, category">
         </label>
@@ -46,14 +51,21 @@
 
         <button class="button" type="submit">Apply filters</button>
     </form>
+
+    <div class="library-category-dock">
+        <div class="library-category-dock-heading">
+            <span><i aria-hidden="true"></i> Browse categories</span>
+            <small>Swipe or use arrows</small>
+        </div>
+
+        <?php
+        $activeCategory = (string) ($filters['category'] ?? '');
+        require base_path('resources/views/partials/category-slider.php');
+        ?>
+    </div>
 </section>
 
 <section class="content-band">
-    <?php
-    $activeCategory = (string) ($filters['category'] ?? '');
-    require base_path('resources/views/partials/category-slider.php');
-    ?>
-
     <?php if ($results['items'] === []): ?>
         <div class="empty-state">
             <strong>No completed prompts match this search.</strong>

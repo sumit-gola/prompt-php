@@ -98,7 +98,7 @@ $socialIcons = [
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="<?= ($bodyClass ?? '') === 'home-page' ? '#ffffff' : '#f6f9fc' ?>">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807footer-social-icons1-homecategory1">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807gallery-orbit1-homecategory3">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
