@@ -220,3 +220,85 @@ document.addEventListener('submit', (event) => {
     });
     updateFloatingNavigation();
 })();
+
+(() => {
+    const sliders = document.querySelectorAll('[data-category-slider]');
+
+    if (sliders.length === 0) {
+        return;
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    sliders.forEach((slider) => {
+        const viewport = slider.querySelector('[data-category-slider-viewport]');
+        const previousButton = slider.querySelector('[data-category-slider-previous]');
+        const nextButton = slider.querySelector('[data-category-slider-next]');
+        const activeItem = slider.querySelector('[data-category-slider-item][aria-current="page"]');
+
+        if (!viewport || !previousButton || !nextButton) {
+            return;
+        }
+
+        let frameRequested = false;
+
+        const updateControls = () => {
+            const maximumScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+            const canScrollPrevious = viewport.scrollLeft > 3;
+            const canScrollNext = viewport.scrollLeft < maximumScroll - 3;
+
+            previousButton.disabled = !canScrollPrevious;
+            nextButton.disabled = !canScrollNext;
+            slider.classList.toggle('has-overflow', maximumScroll > 3);
+            slider.classList.toggle('can-scroll-previous', canScrollPrevious);
+            slider.classList.toggle('can-scroll-next', canScrollNext);
+            frameRequested = false;
+        };
+
+        const requestControlsUpdate = () => {
+            if (frameRequested) {
+                return;
+            }
+
+            frameRequested = true;
+            window.requestAnimationFrame(updateControls);
+        };
+
+        const scrollCategories = (direction) => {
+            const distance = Math.max(180, Math.round(viewport.clientWidth * .72));
+
+            viewport.scrollBy({
+                left: direction * distance,
+                behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
+            });
+        };
+
+        previousButton.addEventListener('click', () => scrollCategories(-1));
+        nextButton.addEventListener('click', () => scrollCategories(1));
+        viewport.addEventListener('scroll', requestControlsUpdate, { passive: true });
+        viewport.addEventListener('keydown', (event) => {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+                return;
+            }
+
+            event.preventDefault();
+            scrollCategories(event.key === 'ArrowLeft' ? -1 : 1);
+        });
+
+        if (activeItem) {
+            const centeredPosition = activeItem.offsetLeft
+                - Math.max(0, (viewport.clientWidth - activeItem.offsetWidth) / 2);
+            const maximumScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+            viewport.scrollLeft = Math.min(maximumScroll, Math.max(0, centeredPosition));
+        }
+
+        if ('ResizeObserver' in window) {
+            const observer = new ResizeObserver(requestControlsUpdate);
+            observer.observe(viewport);
+        } else {
+            window.addEventListener('resize', requestControlsUpdate);
+        }
+
+        updateControls();
+    });
+})();

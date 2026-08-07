@@ -225,6 +225,13 @@ final class PromptController extends Controller
 
         $categoryCounts = Prompt::publicCategoryCounts();
         $categories = array_keys(array_filter($categoryCounts, static fn (int $count): bool => $count > 0));
+        $categoryArtwork = [];
+
+        foreach (Prompt::publicCategoryPreviews() as $previewCategory => $previewPrompt) {
+            $categoryArtwork[$previewCategory] = is_array($previewPrompt)
+                ? PromptImageService::metadata($previewPrompt)
+                : null;
+        }
 
         return $this->view('prompts/index', [
             'title' => $categoryName !== null ? $categoryName . ' prompts' : SeoService::siteName() . ' library',
@@ -243,6 +250,7 @@ final class PromptController extends Controller
             'results' => $results,
             'categories' => $categories,
             'categoryCounts' => $categoryCounts,
+            'categoryArtwork' => $categoryArtwork,
             'listingEyebrow' => $dedicatedCategory ? 'Curated AI prompt collection' : SeoService::siteName() . ' library',
             'listingHeading' => $categoryName !== null
                 ? SeoService::categoryHeading($category)

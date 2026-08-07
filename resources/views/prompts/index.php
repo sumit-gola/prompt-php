@@ -19,13 +19,6 @@
         <h1><?= e($listingHeading) ?></h1>
         <p class="listing-intro"><?= e($listingIntro) ?></p>
         <p class="muted"><?= (int) $results['total'] ?> result<?= (int) $results['total'] === 1 ? '' : 's' ?></p>
-        <div class="category-strip" aria-label="Prompt categories">
-            <?php foreach ($categories as $category): ?>
-                <a href="<?= url('/ai-prompts/' . rawurlencode($category)) ?>">
-                    <?= e(\App\Services\SeoService::categoryName($category)) ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
     </div>
     <form class="filter-panel" action="<?= url('/prompts') ?>" method="get">
         <label for="q">Search
@@ -56,6 +49,11 @@
 </section>
 
 <section class="content-band">
+    <?php
+    $activeCategory = (string) ($filters['category'] ?? '');
+    require base_path('resources/views/partials/category-slider.php');
+    ?>
+
     <?php if ($results['items'] === []): ?>
         <div class="empty-state">
             <strong>No completed prompts match this search.</strong>

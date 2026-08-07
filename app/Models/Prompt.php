@@ -223,6 +223,37 @@ final class Prompt
         return $counts;
     }
 
+    public static function publicCategoryPreviews(): array
+    {
+        $stmt = Database::pdo()->query(
+            "SELECT p.id, p.title, p.category, p.source_slug, p.thumbnail_path, p.reference_image_path
+             FROM prompts p
+             INNER JOIN (
+                 SELECT category, MAX(id) AS prompt_id
+                 FROM prompts
+                 WHERE status = 'completed'
+                   AND prompt IS NOT NULL
+                   AND prompt <> ''
+                   AND (
+                       (thumbnail_path IS NOT NULL AND thumbnail_path <> '')
+                       OR (reference_image_path IS NOT NULL AND reference_image_path <> '')
+                   )
+                 GROUP BY category
+             ) category_preview ON category_preview.prompt_id = p.id"
+        );
+        $previews = array_fill_keys(self::CATEGORIES, null);
+
+        foreach ($stmt->fetchAll() as $row) {
+            $category = (string) ($row['category'] ?? '');
+
+            if (array_key_exists($category, $previews)) {
+                $previews[$category] = $row;
+            }
+        }
+
+        return $previews;
+    }
+
     public static function related(array $prompt, int $limit = 4): array
     {
         $stmt = Database::pdo()->prepare(

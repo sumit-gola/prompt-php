@@ -34,6 +34,22 @@ $homeHeader = $renderHeader('/');
 $aboutHeader = $renderHeader('/about');
 $libraryHeader = $renderHeader('/prompts?q=portrait');
 $categoryHeader = $renderHeader('/ai-prompts/portrait');
+$categorySlider = \App\Core\View::render('partials/category-slider', [
+    'categories' => ['portrait', 'art'],
+    'categoryCounts' => ['portrait' => 249, 'art' => 88],
+    'categoryArtwork' => [
+        'portrait' => [
+            'src' => '/storage/prompts/images/portrait.webp?v=1',
+            'width' => 480,
+            'height' => 640,
+            'webp_srcset' => '/storage/prompts/images/portrait-480w.webp?v=1 480w',
+            'avif_srcset' => null,
+        ],
+        'art' => null,
+    ],
+    'activeCategory' => 'portrait',
+]);
+$navigationScript = file_get_contents(base_path('public/assets/js/app.js')) ?: '';
 
 $assert(str_contains($homeHeader, 'href="#explore"'), 'Homepage Explore link should target its local section.');
 $assert(str_contains($homeHeader, 'href="#categories"'), 'Homepage Categories link should target its local section.');
@@ -58,6 +74,20 @@ $assert(
 $assert(str_contains($homeHeader, 'data-site-nav-toggle'), 'Shared header should render the mobile navigation toggle.');
 $assert(str_contains($homeHeader, 'aria-controls="site-navigation"'), 'Mobile toggle should identify the controlled menu.');
 $assert(str_contains($homeHeader, 'data-site-nav-menu'), 'Shared header should render the responsive menu container.');
+$assert(str_contains($categorySlider, 'data-category-slider'), 'Library categories should render in a dedicated slider.');
+$assert(str_contains($categorySlider, 'data-category-slider-previous'), 'Category slider should expose a previous control.');
+$assert(str_contains($categorySlider, 'data-category-slider-next'), 'Category slider should expose a next control.');
+$assert(str_contains($categorySlider, 'href="/prompts"'), 'Category slider should provide an all-prompts destination.');
+$assert(
+    preg_match('/class="category-slider-item is-active"[^>]+href="\/ai-prompts\/portrait"[^>]+aria-current="page"/s', $categorySlider) === 1,
+    'Category slider should mark the selected category as current.'
+);
+$assert(str_contains($categorySlider, '249 prompts'), 'Category slider should expose the category result count.');
+$assert(str_contains($categorySlider, 'loading="eager"'), 'Above-grid category artwork should load eagerly.');
+$assert(
+    str_contains($navigationScript, "viewport.scrollBy") && str_contains($navigationScript, "ResizeObserver"),
+    'Category slider script should support button scrolling and responsive control updates.'
+);
 
 if ($failures !== []) {
     foreach ($failures as $failure) {
@@ -67,4 +97,4 @@ if ($failures !== []) {
     exit(1);
 }
 
-echo "Navigation checks passed: shared links, active states, and mobile controls are present.\n";
+echo "Navigation checks passed: shared links, active states, mobile controls, and category slider are present.\n";
