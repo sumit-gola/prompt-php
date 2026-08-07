@@ -91,7 +91,7 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="<?= ($bodyClass ?? '') === 'home-page' ? '#ffffff' : '#f6f9fc' ?>">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807gallery1">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807footer1">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
@@ -120,22 +120,75 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
     <?php endif; ?>
 
     <footer class="site-footer">
-        <div>
-            <strong>MyPromptArt</strong>
-            <p>Completed prompts. Search, open, copy.</p>
-        </div>
-        <div class="footer-navs">
-            <nav class="footer-social" aria-label="Social media">
-                <?php foreach (\App\Services\SeoService::socialProfiles() as $platform => $profileUrl): ?>
-                    <a href="<?= e($profileUrl) ?>" target="_blank" rel="me noopener noreferrer"><?= e($platform) ?></a>
-                <?php endforeach; ?>
-            </nav>
-            <nav aria-label="Footer navigation">
-                <a href="<?= url('/privacy-policy') ?>">Privacy</a>
-                <a href="<?= url('/terms') ?>">Terms</a>
-                <a href="<?= url('/sitemap.xml') ?>">Sitemap</a>
-                <a href="<?= url('/robots.txt') ?>">Robots</a>
-            </nav>
+        <div class="footer-frame">
+            <div class="footer-atmosphere" aria-hidden="true">
+                <span></span>
+                <span></span>
+            </div>
+
+            <section class="footer-callout" aria-labelledby="footer-heading">
+                <div class="footer-callout-copy">
+                    <p class="footer-kicker"><span aria-hidden="true"></span> Curated for creators</p>
+                    <h2 id="footer-heading">Your next image starts with <em>the right words.</em></h2>
+                    <p>Find a finished, thoughtfully curated prompt and make the idea your own.</p>
+                </div>
+                <a class="footer-cta" href="<?= url('/prompts') ?>">
+                    <span>Explore prompts</span>
+                    <i aria-hidden="true">&#8599;</i>
+                </a>
+            </section>
+
+            <div class="footer-prompt-formula" role="group" aria-label="The building blocks of an image prompt">
+                <span class="footer-formula-label">Build the scene</span>
+                <div>
+                    <span>Subject</span>
+                    <b aria-hidden="true">+</b>
+                    <span>Light</span>
+                    <b aria-hidden="true">+</b>
+                    <span>Lens</span>
+                    <b aria-hidden="true">+</b>
+                    <span>Mood</span>
+                </div>
+            </div>
+
+            <div class="footer-directory">
+                <div class="footer-brand-block">
+                    <a class="footer-brand" href="<?= url('/') ?>" aria-label="MyPromptArt home">
+                        <span class="footer-brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                        <strong>MyPromptArt</strong>
+                    </a>
+                    <p>Completed prompts. Search, open, copy.</p>
+                </div>
+
+                <div class="footer-link-group">
+                    <p class="footer-label">Discover</p>
+                    <nav aria-label="Discover MyPromptArt">
+                        <a href="<?= url('/prompts') ?>">Prompt library</a>
+                        <a href="<?= url('/about') ?>">About</a>
+                        <a href="<?= url('/contact') ?>">Contact</a>
+                    </nav>
+                </div>
+
+                <div class="footer-link-group footer-community">
+                    <p class="footer-label">Follow the work</p>
+                    <nav class="footer-social" aria-label="Social media">
+                        <?php foreach (\App\Services\SeoService::socialProfiles() as $platform => $profileUrl): ?>
+                            <a href="<?= e($profileUrl) ?>" target="_blank" rel="me noopener noreferrer"><?= e($platform) ?></a>
+                        <?php endforeach; ?>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; <?= date('Y') ?> MyPromptArt</p>
+                <nav aria-label="Legal and technical links">
+                    <a href="<?= url('/privacy-policy') ?>">Privacy</a>
+                    <a href="<?= url('/terms') ?>">Terms</a>
+                    <a href="<?= url('/sitemap.xml') ?>">Sitemap</a>
+                    <a href="<?= url('/robots.txt') ?>">Robots</a>
+                </nav>
+                <p class="footer-status"><span aria-hidden="true"></span> Ready when inspiration is.</p>
+            </div>
         </div>
     </footer>
     <script src="<?= asset('assets/js/app.js') ?>?v=20260807gallery1" defer></script>
