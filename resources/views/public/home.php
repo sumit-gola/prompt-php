@@ -16,15 +16,6 @@ foreach ($prompts as $prompt) {
     }
 }
 
-$categoryCards = [
-    'portrait' => ['label' => 'Portrait', 'class' => 'lilac', 'icon' => 'portrait'],
-    'product' => ['label' => 'Product', 'class' => 'mint', 'icon' => 'product'],
-    'fashion' => ['label' => 'Fashion', 'class' => 'butter', 'icon' => 'fashion'],
-    'lifestyle' => ['label' => 'Lifestyle', 'class' => 'sky', 'icon' => 'lifestyle'],
-    'art' => ['label' => 'Digital Art', 'class' => 'rose', 'icon' => 'art'],
-    'other' => ['label' => 'More ideas', 'class' => 'violet', 'icon' => 'sparkles'],
-];
-
 $popularSearches = ['Portrait', 'Cinematic', 'Fashion', 'Product', 'Anime'];
 $displayPromptCount = $publicCompletedCount >= 1000
     ? number_format((int) floor($publicCompletedCount / 1000) * 1000) . '+'
@@ -126,18 +117,12 @@ $displayPromptCount = $publicCompletedCount >= 1000
         <a class="home-view-all" href="<?= url('/prompts') ?>">View all <span aria-hidden="true">&#8594;</span></a>
     </div>
 
-    <div class="home-category-grid">
-        <?php foreach ($categoryCards as $category => $card): ?>
-            <a class="home-category-card home-category-card--<?= e($card['class']) ?>" href="<?= url('/ai-prompts/' . rawurlencode($category)) ?>">
-                <span class="home-category-icon">
-                    <svg aria-hidden="true" viewBox="0 0 24 24"><use href="#home-icon-<?= e($card['icon']) ?>"></use></svg>
-                </span>
-                <strong><?= e($card['label']) ?></strong>
-                <span><?= number_format((int) ($categoryCounts[$category] ?? 0)) ?> prompts</span>
-                <i aria-hidden="true">&#8599;</i>
-            </a>
-        <?php endforeach; ?>
-    </div>
+    <?php
+    $activeCategory = '';
+    $categorySliderVariant = 'home';
+    $includeAllCategory = false;
+    require base_path('resources/views/partials/category-slider.php');
+    ?>
 </section>
 
 <section class="content-band latest-band home-latest" aria-labelledby="latest-heading">

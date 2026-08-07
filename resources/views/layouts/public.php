@@ -25,6 +25,13 @@ $structuredData = $structuredData ?? [];
 $googleVerification = trim((string) env('GOOGLE_SITE_VERIFICATION', ''));
 $bingVerification = trim((string) env('BING_SITE_VERIFICATION', ''));
 $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPlacement ?? null);
+$socialIcons = [
+    'Facebook' => '<path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.099 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236V7.92h-1.513c-1.49 0-1.956.931-1.956 1.887v2.266h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.099 24 12.073Z"/>',
+    'X' => '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/>',
+    'Instagram' => '<rect x="2.75" y="2.75" width="18.5" height="18.5" rx="5.25" fill="none" stroke="currentColor" stroke-width="2.25"/><circle cx="12" cy="12" r="4.25" fill="none" stroke="currentColor" stroke-width="2.25"/><circle cx="17.45" cy="6.55" r="1.25"/>',
+    'YouTube' => '<path d="M23.5 6.2a3.05 3.05 0 0 0-2.15-2.16C19.46 3.53 12 3.53 12 3.53s-7.46 0-9.35.51A3.05 3.05 0 0 0 .5 6.2C0 8.09 0 12 0 12s0 3.91.5 5.8a3.05 3.05 0 0 0 2.15 2.16c1.89.51 9.35.51 9.35.51s7.46 0 9.35-.51a3.05 3.05 0 0 0 2.15-2.16c.5-1.89.5-5.8.5-5.8s0-3.91-.5-5.8ZM9.55 15.57V8.43L15.82 12Z"/>',
+    'Pinterest' => '<path d="M12 0C5.37 0 0 5.37 0 12c0 4.91 2.95 9.13 7.18 10.99-.1-.84-.19-2.14.04-3.06l1.41-5.98s-.36-.72-.36-1.79c0-1.68.97-2.93 2.18-2.93 1.03 0 1.53.77 1.53 1.7 0 1.03-.66 2.58-1 4.01-.28 1.2.6 2.18 1.79 2.18 2.15 0 3.8-2.27 3.8-5.54 0-2.9-2.08-4.92-5.05-4.92-3.44 0-5.46 2.58-5.46 5.25 0 1.04.4 2.15.9 2.76.1.12.11.22.08.34l-.34 1.38c-.05.22-.18.27-.41.16-1.51-.7-2.46-2.92-2.46-4.7 0-3.83 2.78-7.34 8.02-7.34 4.21 0 7.48 3 7.48 7.01 0 4.18-2.64 7.55-6.29 7.55-1.23 0-2.38-.64-2.78-1.39l-.76 2.88c-.27 1.06-1.01 2.38-1.51 3.19 1.14.35 2.34.54 3.58.54C18.63 24 24 18.63 24 12S18.63 0 12 0Z"/>',
+];
 ?>
 <!doctype html>
 <html lang="en">
@@ -91,7 +98,7 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="<?= ($bodyClass ?? '') === 'home-page' ? '#ffffff' : '#f6f9fc' ?>">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807footer1-category1">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807footer-social-icons1-homecategory1">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
@@ -173,7 +180,18 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
                     <p class="footer-label">Follow the work</p>
                     <nav class="footer-social" aria-label="Social media">
                         <?php foreach (\App\Services\SeoService::socialProfiles() as $platform => $profileUrl): ?>
-                            <a href="<?= e($profileUrl) ?>" target="_blank" rel="me noopener noreferrer"><?= e($platform) ?></a>
+                            <a
+                                class="footer-social-link footer-social-link--<?= e(strtolower($platform)) ?>"
+                                href="<?= e($profileUrl) ?>"
+                                target="_blank"
+                                rel="me noopener noreferrer"
+                                aria-label="Visit MyPromptArt on <?= e($platform) ?> (opens in a new tab)"
+                                title="<?= e($platform) ?>"
+                            >
+                                <svg class="footer-social-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                                    <?= $socialIcons[$platform] ?? '' ?>
+                                </svg>
+                            </a>
                         <?php endforeach; ?>
                     </nav>
                 </div>
@@ -191,6 +209,6 @@ $adsense = \App\Services\AdSenseService::configuration(! empty($showAds), $adPla
             </div>
         </div>
     </footer>
-    <script src="<?= asset('assets/js/app.js') ?>?v=20260807category1" defer></script>
+    <script src="<?= asset('assets/js/app.js') ?>?v=20260807homecategory1" defer></script>
 </body>
 </html>

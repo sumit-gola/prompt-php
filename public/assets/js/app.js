@@ -235,6 +235,7 @@ document.addEventListener('submit', (event) => {
         const previousButton = slider.querySelector('[data-category-slider-previous]');
         const nextButton = slider.querySelector('[data-category-slider-next]');
         const activeItem = slider.querySelector('[data-category-slider-item][aria-current="page"]');
+        const progressThumb = slider.querySelector('[data-category-slider-progress-thumb]');
 
         if (!viewport || !previousButton || !nextButton) {
             return;
@@ -252,6 +253,16 @@ document.addEventListener('submit', (event) => {
             slider.classList.toggle('has-overflow', maximumScroll > 3);
             slider.classList.toggle('can-scroll-previous', canScrollPrevious);
             slider.classList.toggle('can-scroll-next', canScrollNext);
+
+            if (progressThumb) {
+                const visibleRatio = Math.min(1, viewport.clientWidth / Math.max(1, viewport.scrollWidth));
+                const scrollProgress = maximumScroll > 0 ? viewport.scrollLeft / maximumScroll : 0;
+                const travel = (1 - visibleRatio) * 100;
+
+                progressThumb.style.width = `${visibleRatio * 100}%`;
+                progressThumb.style.left = `${scrollProgress * travel}%`;
+            }
+
             frameRequested = false;
         };
 

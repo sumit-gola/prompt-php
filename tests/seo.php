@@ -229,8 +229,9 @@ $assert(! str_contains($html, '<span class="brand-mark">PL</span>'), 'Public hea
 $assert(str_contains($html, '<strong>MyPromptArt</strong>'), 'Public footer should use the canonical MyPromptArt brand.');
 foreach ($expectedSocialProfiles as $platform => $profileUrl) {
     $assert(
-        str_contains($html, 'href="' . $profileUrl . '"') && str_contains($html, '>' . $platform . '</a>'),
-        "Public footer should link to the official {$platform} profile."
+        str_contains($html, 'href="' . $profileUrl . '"')
+            && str_contains($html, 'aria-label="Visit MyPromptArt on ' . $platform . ' (opens in a new tab)"'),
+        "Public footer should render an accessible icon linking to the official {$platform} profile."
     );
 }
 $assert(str_contains($html, 'property="og:site_name" content="MyPromptArt"'), 'Open Graph site name should use MyPromptArt.');

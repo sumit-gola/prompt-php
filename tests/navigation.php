@@ -49,6 +49,22 @@ $categorySlider = \App\Core\View::render('partials/category-slider', [
     ],
     'activeCategory' => 'portrait',
 ]);
+$homeCategorySlider = \App\Core\View::render('partials/category-slider', [
+    'categories' => ['portrait', 'product', 'fashion'],
+    'categoryCounts' => ['portrait' => 249, 'product' => 90, 'fashion' => 394],
+    'categoryArtwork' => [
+        'portrait' => [
+            'src' => '/storage/prompts/images/portrait.webp?v=1',
+            'width' => 480,
+            'height' => 640,
+            'webp_srcset' => null,
+            'avif_srcset' => null,
+        ],
+    ],
+    'activeCategory' => '',
+    'categorySliderVariant' => 'home',
+    'includeAllCategory' => false,
+]);
 $navigationScript = file_get_contents(base_path('public/assets/js/app.js')) ?: '';
 
 $assert(str_contains($homeHeader, 'href="#explore"'), 'Homepage Explore link should target its local section.');
@@ -85,8 +101,23 @@ $assert(
 $assert(str_contains($categorySlider, '249 prompts'), 'Category slider should expose the category result count.');
 $assert(str_contains($categorySlider, 'loading="eager"'), 'Above-grid category artwork should load eagerly.');
 $assert(
-    str_contains($navigationScript, "viewport.scrollBy") && str_contains($navigationScript, "ResizeObserver"),
-    'Category slider script should support button scrolling and responsive control updates.'
+    str_contains($homeCategorySlider, 'class="category-slider home-category-slider"'),
+    'Homepage categories should render with the light reference-style slider variant.'
+);
+$assert(
+    str_contains($homeCategorySlider, 'data-category-slider-progress-thumb'),
+    'Homepage category slider should expose a visual scroll-progress indicator.'
+);
+$assert(
+    ! str_contains($homeCategorySlider, '>All prompts<')
+        && str_contains($homeCategorySlider, 'href="/ai-prompts/portrait"'),
+    'Homepage category slider should contain category destinations without an all-prompts card.'
+);
+$assert(
+    str_contains($navigationScript, "viewport.scrollBy")
+        && str_contains($navigationScript, "ResizeObserver")
+        && str_contains($navigationScript, "progressThumb.style.width"),
+    'Category slider script should support button scrolling, responsive controls, and visual progress updates.'
 );
 
 if ($failures !== []) {

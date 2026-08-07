@@ -2,6 +2,9 @@
 $activeCategory = (string) ($activeCategory ?? '');
 $categoryArtwork = is_array($categoryArtwork ?? null) ? $categoryArtwork : [];
 $categoryCounts = is_array($categoryCounts ?? null) ? $categoryCounts : [];
+$categorySliderVariant = ($categorySliderVariant ?? '') === 'home' ? 'home' : 'library';
+$includeAllCategory = isset($includeAllCategory) ? (bool) $includeAllCategory : true;
+$categorySliderClass = 'category-slider' . ($categorySliderVariant === 'home' ? ' home-category-slider' : '');
 $allCount = array_sum(array_map('intval', $categoryCounts));
 $allArtwork = [];
 
@@ -15,13 +18,17 @@ foreach ($categories as $category) {
     }
 }
 
-$sliderItems = [[
-    'slug' => '',
-    'label' => 'All prompts',
-    'count' => $allCount,
-    'artwork' => null,
-    'artworks' => $allArtwork,
-]];
+$sliderItems = [];
+
+if ($includeAllCategory) {
+    $sliderItems[] = [
+        'slug' => '',
+        'label' => 'All prompts',
+        'count' => $allCount,
+        'artwork' => null,
+        'artworks' => $allArtwork,
+    ];
+}
 
 foreach ($categories as $category) {
     $sliderItems[] = [
@@ -33,7 +40,13 @@ foreach ($categories as $category) {
     ];
 }
 ?>
-<nav class="category-slider" data-category-slider aria-label="Browse prompt categories">
+<nav class="<?= e($categorySliderClass) ?>" data-category-slider aria-label="Browse prompt categories">
+    <?php if ($categorySliderVariant === 'home'): ?>
+        <span class="home-category-slider-progress" aria-hidden="true">
+            <i data-category-slider-progress-thumb></i>
+        </span>
+    <?php endif; ?>
+
     <button
         class="category-slider-control category-slider-control--previous"
         type="button"

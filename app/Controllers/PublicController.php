@@ -30,7 +30,15 @@ final class PublicController extends Controller
         $prompts = Prompt::latestCompleted(8);
         $stats = Prompt::stats();
         $categoryCounts = Prompt::publicCategoryCounts();
-        $categories = array_keys(array_filter($categoryCounts, static fn (int $count): bool => $count > 0));
+        $categories = Prompt::CATEGORIES;
+        $categoryArtwork = [];
+
+        foreach (Prompt::publicCategoryPreviews() as $previewCategory => $previewPrompt) {
+            $categoryArtwork[$previewCategory] = is_array($previewPrompt)
+                ? PromptImageService::metadata($previewPrompt)
+                : null;
+        }
+
         $publicCompletedCount = array_sum($categoryCounts);
         $description = 'Discover 1,000+ curated AI image and photo-editing prompts for portraits, fashion, products, art and lifestyle. Preview, copy and create better AI images.';
 
@@ -54,6 +62,7 @@ final class PublicController extends Controller
             'prompts' => $prompts,
             'categories' => $categories,
             'categoryCounts' => $categoryCounts,
+            'categoryArtwork' => $categoryArtwork,
             'publicCompletedCount' => $publicCompletedCount,
             'stats' => $stats,
             'bodyClass' => 'home-page',
