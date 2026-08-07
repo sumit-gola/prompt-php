@@ -152,7 +152,7 @@ $displayPromptCount = $publicCompletedCount >= 1000
     <?php if ($prompts === []): ?>
         <div class="empty-state">No completed prompts are published yet.</div>
     <?php else: ?>
-        <div class="prompt-grid">
+        <div class="prompt-grid prompt-masonry">
             <?php foreach ($prompts as $index => $prompt): ?>
                 <?php
                 $cardImageLoading = $index === 0 ? 'eager' : 'lazy';

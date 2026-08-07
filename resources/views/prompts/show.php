@@ -122,7 +122,7 @@
                 <h2>More <?= e($prompt['category']) ?> prompts</h2>
             </div>
         </div>
-        <div class="prompt-grid compact-grid">
+        <div class="prompt-grid compact-grid prompt-masonry">
             <?php foreach ($related as $prompt): ?>
                 <?php
                 $cardImageLoading = 'lazy';

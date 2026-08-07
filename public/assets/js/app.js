@@ -2,9 +2,20 @@ document.addEventListener('click', async (event) => {
     const copyButton = event.target.closest('.copy-button');
 
     if (copyButton) {
-        const originalText = copyButton.textContent;
+        const copyLabel = copyButton.querySelector('[data-copy-label]');
+        const originalText = copyLabel ? copyLabel.textContent : copyButton.textContent;
+        const setCopyLabel = (text) => {
+            if (copyLabel) {
+                copyLabel.textContent = text;
+            } else {
+                copyButton.textContent = text;
+            }
+        };
+
         copyButton.disabled = true;
-        copyButton.textContent = 'Copying';
+        copyButton.classList.remove('is-copied', 'is-copy-error');
+        copyButton.classList.add('is-copying');
+        setCopyLabel('Copying prompt');
 
         try {
             const response = await fetch(copyButton.dataset.copyUrl, {
@@ -35,13 +46,18 @@ document.addEventListener('click', async (event) => {
                 textarea.remove();
             }
 
-            copyButton.textContent = 'Copied';
+            copyButton.classList.add('is-copied');
+            setCopyLabel('Prompt copied');
         } catch (error) {
-            copyButton.textContent = error.message || 'Copy failed';
+            copyButton.classList.add('is-copy-error');
+            setCopyLabel(error.message || 'Copy failed');
         } finally {
+            copyButton.classList.remove('is-copying');
+
             window.setTimeout(() => {
                 copyButton.disabled = false;
-                copyButton.textContent = originalText;
+                copyButton.classList.remove('is-copied', 'is-copy-error');
+                setCopyLabel(originalText);
             }, 1400);
         }
     }

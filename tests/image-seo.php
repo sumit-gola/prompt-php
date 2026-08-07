@@ -92,6 +92,9 @@ $cardHtml = View::render('partials/prompt-card', ['prompt' => $prompt]);
 $assert(str_contains($cardHtml, $expectedStem . '.webp?v='), 'Prompt cards should render the versioned descriptive canonical image.');
 $assert(str_contains($cardHtml, 'loading="lazy"'), 'Prompt card images should always lazy load.');
 $assert(! str_contains($cardHtml, '4b19c328-1913-4317-a359-fe5cb3dec87d'), 'Prompt card markup should not expose the UUID source filename.');
+$assert(str_contains($cardHtml, 'prompt-gallery-card'), 'Prompt cards should render the image-first gallery design.');
+$assert(str_contains($cardHtml, 'prompt-card-copy copy-button'), 'Gallery cards should expose a compact copy action.');
+$assert(str_contains($cardHtml, 'data-copy-label'), 'Gallery copy actions should provide an accessible live label.');
 
 $detailHtml = View::render('prompts/show', [
     'prompt' => $prompt,

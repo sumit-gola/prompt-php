@@ -51,7 +51,7 @@
             </select>
         </label>
 
-        <button class="button" type="submit">Apply</button>
+        <button class="button" type="submit">Apply filters</button>
     </form>
 </section>
 
@@ -63,7 +63,7 @@
             <a class="button button-small button-ghost" href="<?= url('/prompts') ?>">Reset filters</a>
         </div>
     <?php else: ?>
-        <div class="prompt-grid">
+        <div class="prompt-grid prompt-masonry">
             <?php foreach ($results['items'] as $index => $prompt): ?>
                 <?php
                 $cardImageLoading = $index === 0 ? 'eager' : 'lazy';

@@ -250,6 +250,7 @@ final class PromptController extends Controller
             'listingIntro' => $listingIntro,
             'breadcrumbs' => $breadcrumbs,
             'dedicatedCategory' => $dedicatedCategory,
+            'bodyClass' => 'gallery-page',
         ]);
     }
 
