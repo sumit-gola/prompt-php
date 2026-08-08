@@ -54,6 +54,15 @@ $displayPromptCount = $publicCompletedCount >= 1000
     </symbol>
 </svg>
 
+<div class="home-tech-background" aria-hidden="true">
+    <span class="home-tech-grid home-tech-grid--hero"></span>
+    <span class="home-tech-grid home-tech-grid--gallery"></span>
+    <span class="home-tech-orbit home-tech-orbit--one"></span>
+    <span class="home-tech-orbit home-tech-orbit--two"></span>
+    <span class="home-tech-circuit home-tech-circuit--one"><i></i><i></i><i></i></span>
+    <span class="home-tech-circuit home-tech-circuit--two"><i></i><i></i><i></i></span>
+</div>
+
 <section class="home-hero" id="explore" data-home-section="explore" aria-labelledby="home-heading">
     <div class="home-hero-copy">
         <p class="home-kicker"><span></span> Curated prompts, ready to copy</p>
