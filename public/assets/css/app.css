@@ -285,7 +285,205 @@ code {
 
 .public-shell,
 .auth-shell {
+    position: relative;
+    isolation: isolate;
     min-height: 100vh;
+}
+
+.public-shell > main,
+.public-shell > .site-footer,
+.auth-shell > main {
+    position: relative;
+    z-index: 1;
+}
+
+.site-neon-field {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.site-neon-wave {
+    --wave-rotate: 0deg;
+    --wave-color: rgba(93, 190, 255, .62);
+    --wave-soft: rgba(93, 190, 255, .22);
+    position: absolute;
+    left: -14vw;
+    display: block;
+    width: 128vw;
+    height: 240px;
+    border-top: 2px solid var(--wave-color);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 7px var(--wave-color)) drop-shadow(0 0 20px var(--wave-soft));
+    opacity: .48;
+    transform: translate3d(-2%, 0, 0) rotate(var(--wave-rotate));
+    animation: site-neon-wave-drift 12s ease-in-out infinite alternate;
+}
+
+.site-neon-wave::before {
+    position: absolute;
+    top: 13px;
+    right: 4%;
+    left: 4%;
+    height: 100%;
+    border-top: 1px solid var(--wave-soft);
+    border-radius: 50%;
+    content: "";
+}
+
+.site-neon-wave::after {
+    position: absolute;
+    top: -7px;
+    left: 63%;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(255, 255, 255, .9);
+    border-radius: 50%;
+    background: var(--wave-color);
+    box-shadow: 0 0 0 6px var(--wave-soft), 0 0 24px var(--wave-color);
+    content: "";
+    animation: site-neon-node-pulse 6.5s ease-in-out infinite;
+}
+
+.site-neon-wave--one {
+    --wave-rotate: -7deg;
+    top: 14vh;
+}
+
+.site-neon-wave--two {
+    --wave-rotate: 5deg;
+    --wave-color: rgba(143, 89, 255, .58);
+    --wave-soft: rgba(143, 89, 255, .2);
+    top: 52vh;
+    height: 300px;
+    animation-delay: -4s;
+}
+
+.site-neon-wave--three {
+    --wave-rotate: -3deg;
+    --wave-color: rgba(70, 220, 210, .5);
+    --wave-soft: rgba(70, 220, 210, .16);
+    top: 84vh;
+    height: 190px;
+    animation-delay: -8s;
+}
+
+.site-neon-flare {
+    position: absolute;
+    display: block;
+    width: 290px;
+    height: 290px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(85, 190, 255, .27) 0%, rgba(85, 190, 255, .12) 28%, transparent 68%);
+    filter: blur(12px);
+    opacity: .38;
+    transform: scale(.88);
+    animation: site-neon-flare-pulse 8s ease-in-out infinite;
+}
+
+.site-neon-flare--one {
+    top: 4%;
+    left: -80px;
+}
+
+.site-neon-flare--two {
+    top: 38%;
+    right: -90px;
+    background: radial-gradient(circle, rgba(139, 83, 255, .27) 0%, rgba(139, 83, 255, .12) 29%, transparent 68%);
+    animation-delay: -3s;
+}
+
+.site-neon-flare--three {
+    bottom: -100px;
+    left: 32%;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(66, 218, 207, .2) 0%, rgba(66, 218, 207, .08) 31%, transparent 70%);
+    animation-delay: -6s;
+}
+
+@keyframes site-neon-wave-drift {
+    0% {
+        transform: translate3d(-2.5%, -6px, 0) rotate(var(--wave-rotate)) scaleY(.94);
+    }
+
+    50% {
+        opacity: .68;
+    }
+
+    100% {
+        transform: translate3d(2.5%, 18px, 0) rotate(var(--wave-rotate)) scaleY(1.08);
+    }
+}
+
+@keyframes site-neon-node-pulse {
+    0%, 100% {
+        opacity: .45;
+        transform: scale(.72);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.12);
+    }
+}
+
+@keyframes site-neon-flare-pulse {
+    0%, 100% {
+        opacity: .22;
+        transform: scale(.82);
+    }
+
+    50% {
+        opacity: .5;
+        transform: scale(1.08);
+    }
+}
+
+@media (max-width: 700px) {
+    .site-neon-wave {
+        left: -36vw;
+        width: 172vw;
+        opacity: .38;
+    }
+
+    .site-neon-wave--one {
+        top: 18vh;
+    }
+
+    .site-neon-wave--two {
+        top: 62vh;
+    }
+
+    .site-neon-wave--three,
+    .site-neon-flare--three {
+        display: none;
+    }
+
+    .site-neon-flare {
+        width: 230px;
+        height: 230px;
+        opacity: .3;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-neon-wave,
+    .site-neon-wave::after,
+    .site-neon-flare {
+        animation: none;
+    }
+
+    .site-neon-wave {
+        opacity: .38;
+    }
+
+    .site-neon-flare {
+        opacity: .25;
+        transform: none;
+    }
 }
 
 .site-header {
@@ -5325,7 +5523,7 @@ td small {
         radial-gradient(ellipse at 84% 7%, rgba(116, 87, 233, .17), transparent 31%),
         radial-gradient(ellipse at 5% 30%, rgba(54, 151, 226, .135), transparent 29%),
         radial-gradient(ellipse at 75% 67%, rgba(112, 86, 228, .105), transparent 32%),
-        linear-gradient(180deg, #ffffff 0%, #fbfcff 42%, #f9faff 76%, #ffffff 100%);
+        linear-gradient(180deg, rgba(255, 255, 255, .88) 0%, rgba(251, 252, 255, .84) 42%, rgba(249, 250, 255, .86) 76%, rgba(255, 255, 255, .9) 100%);
     pointer-events: none;
 }
 
@@ -5647,7 +5845,7 @@ td small {
         background:
             radial-gradient(ellipse at 100% 6%, rgba(116, 87, 233, .15), transparent 29%),
             radial-gradient(ellipse at 0 42%, rgba(54, 151, 226, .095), transparent 27%),
-            linear-gradient(180deg, #ffffff, #fafbff 70%, #ffffff);
+            linear-gradient(180deg, rgba(255, 255, 255, .87), rgba(250, 251, 255, .84) 70%, rgba(255, 255, 255, .9));
     }
 
     .home-tech-grid--hero {
