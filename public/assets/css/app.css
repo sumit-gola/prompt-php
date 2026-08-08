@@ -303,6 +303,103 @@ code {
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
+    background-image:
+        radial-gradient(circle at center, rgba(79, 205, 255, .16) 0 1px, transparent 1.5px),
+        linear-gradient(rgba(88, 127, 205, .035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88, 127, 205, .035) 1px, transparent 1px);
+    background-position: 0 0, 0 0, 0 0;
+    background-size: 80px 80px, 160px 160px, 160px 160px;
+}
+
+.site-neon-field::before {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 18% 22%, rgba(57, 190, 255, .11), transparent 27%),
+        radial-gradient(circle at 82% 58%, rgba(133, 78, 255, .1), transparent 29%),
+        radial-gradient(circle at 52% 92%, rgba(47, 223, 203, .08), transparent 25%);
+    content: "";
+}
+
+.site-neon-circuit {
+    position: absolute;
+    inset: -3%;
+    width: 106%;
+    height: 106%;
+    overflow: visible;
+    opacity: .88;
+}
+
+.site-circuit-trace,
+.site-circuit-flow {
+    fill: none;
+    stroke: var(--circuit-color);
+    vector-effect: non-scaling-stroke;
+}
+
+.site-circuit-cyan {
+    --circuit-color: rgba(69, 198, 255, .88);
+    --circuit-glow: rgba(69, 198, 255, .64);
+}
+
+.site-circuit-violet {
+    --circuit-color: rgba(139, 91, 255, .86);
+    --circuit-glow: rgba(139, 91, 255, .62);
+}
+
+.site-circuit-teal {
+    --circuit-color: rgba(47, 221, 204, .84);
+    --circuit-glow: rgba(47, 221, 204, .58);
+}
+
+.site-circuit-trace {
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .46;
+}
+
+.site-circuit-flow {
+    stroke-width: 3.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 88 320;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, .92)) drop-shadow(0 0 9px var(--circuit-glow)) drop-shadow(0 0 20px var(--circuit-glow));
+    animation: site-circuit-flow 7s linear infinite;
+}
+
+.site-circuit-flow--reverse {
+    animation-direction: reverse;
+    animation-duration: 8.5s;
+}
+
+.site-circuit-flow--slow {
+    animation-duration: 11s;
+    animation-delay: -3s;
+}
+
+.site-circuit-flow--short {
+    stroke-dasharray: 52 210;
+    animation-duration: 6s;
+    animation-delay: -2s;
+}
+
+.site-circuit-node {
+    fill: rgba(255, 255, 255, .94);
+    stroke: var(--circuit-color);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 5px var(--circuit-glow)) drop-shadow(0 0 13px var(--circuit-glow));
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: site-circuit-node 4.8s ease-in-out infinite;
+}
+
+.site-circuit-node:nth-child(2n) {
+    animation-delay: -1.6s;
+}
+
+.site-circuit-node:nth-child(3n) {
+    animation-delay: -3.2s;
 }
 
 .site-neon-wave {
@@ -418,6 +515,24 @@ code {
     }
 }
 
+@keyframes site-circuit-flow {
+    to {
+        stroke-dashoffset: -968;
+    }
+}
+
+@keyframes site-circuit-node {
+    0%, 100% {
+        opacity: .48;
+        transform: scale(.72);
+    }
+
+    46%, 58% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
 @keyframes site-neon-node-pulse {
     0%, 100% {
         opacity: .45;
@@ -443,6 +558,21 @@ code {
 }
 
 @media (max-width: 700px) {
+    .site-neon-field {
+        background-size: 64px 64px, 128px 128px, 128px 128px;
+    }
+
+    .site-neon-circuit {
+        inset: -8% -26%;
+        width: 152%;
+        height: 116%;
+        opacity: .74;
+    }
+
+    .site-circuit-trace {
+        opacity: .38;
+    }
+
     .site-neon-wave {
         left: -36vw;
         width: 172vw;
@@ -470,6 +600,8 @@ code {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .site-circuit-flow,
+    .site-circuit-node,
     .site-neon-wave,
     .site-neon-wave::after,
     .site-neon-flare {
@@ -483,6 +615,11 @@ code {
     .site-neon-flare {
         opacity: .25;
         transform: none;
+    }
+
+    .site-circuit-flow {
+        stroke-dasharray: 54 330;
+        opacity: .72;
     }
 }
 
