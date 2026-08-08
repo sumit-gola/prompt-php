@@ -98,7 +98,7 @@ $socialIcons = [
     <meta name="twitter:image:src" content="<?= e($shareImage) ?>">
     <meta name="twitter:image:alt" content="<?= e($shareImageAlt) ?>">
     <meta name="theme-color" content="<?= ($bodyClass ?? '') === 'home-page' ? '#ffffff' : '#f6f9fc' ?>">
-    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260808neon-circuit1-home-tech2-gallery-orbit1">
+    <link rel="stylesheet" href="<?= asset('assets/css/app.css') ?>?v=20260807gallery-orbit1-homecategory3">
     <?php foreach ($structuredData as $schema): ?>
         <script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
     <?php endforeach; ?>
@@ -108,7 +108,6 @@ $socialIcons = [
 </head>
 <body class="public-shell<?= ! empty($bodyClass) ? ' ' . e($bodyClass) : '' ?>">
     <?php require base_path('resources/views/partials/google-tag-manager-body.php'); ?>
-    <?php require base_path('resources/views/partials/neon-field.php'); ?>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <?php require base_path('resources/views/partials/site-header.php'); ?>
 
