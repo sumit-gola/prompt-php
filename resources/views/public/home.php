@@ -57,8 +57,12 @@ $displayPromptCount = $publicCompletedCount >= 1000
 <div class="home-tech-background" aria-hidden="true">
     <span class="home-tech-grid home-tech-grid--hero"></span>
     <span class="home-tech-grid home-tech-grid--gallery"></span>
+    <span class="home-tech-hexfield"></span>
+    <span class="home-tech-contours"></span>
     <span class="home-tech-orbit home-tech-orbit--one"></span>
     <span class="home-tech-orbit home-tech-orbit--two"></span>
+    <span class="home-tech-prism home-tech-prism--one"></span>
+    <span class="home-tech-prism home-tech-prism--two"></span>
     <span class="home-tech-circuit home-tech-circuit--one"><i></i><i></i><i></i></span>
     <span class="home-tech-circuit home-tech-circuit--two"><i></i><i></i><i></i></span>
 </div>
